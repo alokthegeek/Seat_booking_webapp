@@ -8,26 +8,30 @@ const moviesList = [
 const dropDown = document.querySelector("#selectMovie");
 let p = 7;
 for (let i = 0; i < moviesList.length; i++) {
-
     const movie = moviesList[i];
-
     const opt = document.createElement("option");
     opt.textContent = movie.movieName + ` $` + movie.price;
-
-    dropDown.addEventListener("change", (event) => {
-        const movName = document.querySelector("#movieName");
-        movName.textContent = event.target.value.split(" ")[0];
-
-        const movPrice = document.querySelector("#moviePrice");
-        movPrice.textContent = event.target.value.split(" ")[1];
-
-        const totalP = document.querySelector("#totalPrice");
-        totalP.textContent = event.target.value.split(" ")[1];
-
-        p = totalP.innerHTML[1];
-    });
+    // store raw values so parsing isn't weird
+    opt.dataset.name = movie.movieName;
+    opt.dataset.price = movie.price;
     dropDown.add(opt);
-};
+}
+
+// one listener (not per option)
+dropDown.addEventListener("change", (event) => {
+    const sel = event.target.selectedOptions[0]; // the chosen <option>
+    const movName = document.querySelector("#movieName");
+    const movPrice = document.querySelector("#moviePrice");
+    const totalPEl = document.querySelector("#totalPrice");
+
+    // update movie name/price
+    movName.textContent = sel.dataset.name || "Flash";
+    movPrice.textContent = "$" + (sel.dataset.price || 7);
+
+    // keep current seat total consistent with new price
+    p = Number(sel.dataset.price || 7);
+    totalPEl.textContent = '$' + (p * arraySeats.length);
+});
 
 //default case
 {
@@ -42,8 +46,7 @@ for (let i = 0; i < moviesList.length; i++) {
 // for the seats:
 //Add eventLister to each unoccupied seat
 const seat = document.querySelectorAll("#seatCont .seat");
-const occupied = document.querySelectorAll(".seat.occupied");
-
+// const occupied = document.querySelectorAll(".seat.occupied"); // not used
 
 const holder = document.querySelector("#selectedSeatsHolder");
 const numSeats = document.querySelector("#numberOfSeat");
@@ -52,7 +55,6 @@ const countSeat = 0;
 const arraySeats = []; // array to store selected seats
 const totalP = document.querySelector("#totalPrice");
 const span = holder.querySelector("span");
-
 
 for (let i = 0; i < seat.length; i++) {
     seat[i].addEventListener("click", (event) => {
@@ -65,48 +67,26 @@ for (let i = 0; i < seat.length; i++) {
                 event.target.classList.add("selected");
                 arraySeats.push(event.target);
                 numSeats.textContent = arraySeats.length;
-                totalP.textContent = '$' + p * arraySeats.length;
+                totalP.textContent = '$' + (p * arraySeats.length);
 
                 holder.append(seatToAdd);
-                // toBeRemoved.remove();
-                if (span) { holder.removeChild(span); }
+                if (span && span.parentNode === holder) { holder.removeChild(span); }
             }
-        }
-        else if (event.target.classList.contains("selected")) {
+        } else {
             event.target.classList.remove('selected');
-            arraySeats.pop();
+            // keep count simple (we only use length)
+            if (arraySeats.length) arraySeats.pop();
             numSeats.textContent = arraySeats.length;
 
             let removeSeatAppend = document.querySelectorAll(".appendSeat");
-            removeSeatAppend[0].remove();
+            if (removeSeatAppend.length) removeSeatAppend[0].remove();
             if (arraySeats.length == 0) {
                 holder.append(span);
             }
-            totalP.textContent = '$' + p * arraySeats.length;
+            totalP.textContent = '$' + (p * arraySeats.length);
         }
-        // totalP.textContent = '$' + p * arraySeats.length ;
     });
 }
-
-/*for (let i = 0; i < seat.length; i++) {
-  seat[i].addEventListener("click", (event) => {
-  if (event.target.classList.contains("selected")) {
-    event.target.classList.remove('selected');
-    countSeat--;
-    seatSelected[0].remove();
-  }
-  else if (!(event.target.classList.contains("occupied"))) {
-    event.target.classList.add("selected");
-    const var1 = document.createElement("div");
-    var1.textContent = "SEAT";
-    holder.append(var1);
-    seatSelected.push(var1);
-    countSeat++;
-    }
-    numSeats.textContent = countSeat;
-  });
-}*/
-
 
 //Add eventLsiter to continue Button
 const contBtn = document.querySelector("#proceedBtn");
@@ -114,34 +94,38 @@ contBtn.addEventListener("click", (event) => {
     const numOfSeats = document.querySelector("#numberOfSeat").innerHTML;
     if (numOfSeats == '0') {
         alert("Oops no seat Selected");
+        return;
     } else {
         alert("Yayy! Your Seats have been booked");
     }
-    const selSeats = document.querySelector(".selected");
-    selSeats.classList.add("occupied");
-    selSeats.classList.remove("selected");
 
+    // mark all selected as occupied
+    const selSeatsAll = document.querySelectorAll(".selected");
+    selSeatsAll.forEach(s => {
+        s.classList.add("occupied");
+        s.classList.remove("selected");
+    });
+
+    // reset totals and UI
+    arraySeats.length = 0;
+    numSeats.textContent = 0;
     const price = document.querySelector("#totalPrice");
-    price.innerHTML = "$ 0";
-
-    //Update the seatHolderSection to its default value which is a span with textContent "No seat Selected".
-
+    price.textContent = "$0";
+    holder.innerHTML = '<span class="noSelected">No Seat Selected</span>';
 });
-//Add eventListerner to Cancel Button
 
+//Add eventListerner to Cancel Button
 const cancelBtn = document.querySelector("#cancelBtn");
 cancelBtn.addEventListener("click", (event) => {
-    const selSeats = document.querySelector(".selected");
-    selSeats.classList.remove("selected");
-    const price = document.querySelector("#totalPrice");
-    price.innerHTML = "$ 0";
+    const selSeatsAll = document.querySelectorAll(".selected");
+    selSeatsAll.forEach(s => s.classList.remove("selected"));
 
-    {
-        const movName = document.querySelector("#movieName");
-        movName.textContent = "Flash";
-        const movPrice = document.querySelector("#moviePrice");
-        movPrice.textContent = "$7";
-        const totalP = document.querySelector("#totalPrice");
-        totalP.textContent = "$0";
-    }
+    arraySeats.length = 0;
+    numSeats.textContent = 0;
+
+    const price = document.querySelector("#totalPrice");
+    price.textContent = "$0";
+
+    holder.innerHTML = '<span class="noSelected">No Seat Selected</span>';
+    // (leaving movie selection as-is on cancel, your default block already set initial)
 });
