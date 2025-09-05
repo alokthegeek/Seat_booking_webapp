@@ -1,506 +1,881 @@
 * {
-    padding: 0%;
-    margin: 0%;
-    box-sizing: border-box;
-    font-family: sans-serif;
-  }
-  .leftCont {
-    width: 100%;
-    background-color: aliceblue;
-  }
-  
-  .leftMainCont {
-    width: 100%;
-  }
+  padding: 0%;
+  margin: 0%;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+:root {
+  --stage-max: 760px;
+}
+
+.leftCont {
+  width: 100%;
+  background-color: aliceblue;
+}
+
+.leftMainCont {
+  width: 100%;
+}
+
+body {
+  background-color: #f1f1f1;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.container .legendContainer {
+  background-color: #f1f1f1;
+  display: flex;
+  padding: 1rem;
+  width: 100%;
+}
+
+.container .legendContainer ul {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  list-style: none;
+  max-width: 600px;
+  margin: 0 auto;
+  user-select: none;
+}
+
+.container .legendContainer ul li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container .legendContainer ul li small {
+  color: #bdbdbd;
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.container .leftMainCont .seat {
+  height: 36px;
+  width: 42px;
+  border: 1px solid #bdbdbd;
+  border-radius: 3px 3px 6px 6px;
+  margin: 12px;
+  margin-bottom: 0.9rem;
+  position: relative;
+  cursor: pointer;
+  background-color: #fff;
+  transition: 0.3s ease background-color;
+}
+
+/* Seat label displayed on each seat */
+.container .leftMainCont .seat::before {
+  content: attr(data-label);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  color: #333;
+  z-index: 1;
+  pointer-events: none;
+  font-weight: 600;
+}
+
+.container .leftMainCont .seat::after {
+  content: "";
+  height: 30px;
+  width: 28px;
+  border: 1px solid #bdbdbd;
+  position: absolute;
+  left: 50%;
+  top: 29%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border-radius: 3px 3px;
+  transition: 0.3s ease background-color;
+  z-index: 0;
+}
+
+.container .leftMainCont .seat:hover,
+.container .leftMainCont .seat:hover::after {
+  background-color: #e6e6e6;
+}
+
+.container .leftMainCont .seat {
+  transition: transform 0.12s ease, background-color 0.3s ease;
+}
+
+.container .leftMainCont .seat.selected {
+  transform: scale(1.04);
+}
+
+.container .legendContainer .seat {
+  cursor: default;
+  margin-bottom: 10px;
+}
+
+.container .legendContainer .seat:hover,
+.container .legendContainer .seat:hover::after {
+  background-color: #fff;
+}
+
+.container .leftMainCont .seat.occupied,
+.container .leftMainCont .seat.occupied::after {
+  background-color: lightgray;
+}
+
+.container .leftMainCont .seat.occupied {
+  cursor: not-allowed;
+}
+
+.container .leftMainCont .seat:focus-visible {
+  outline: 2px solid #5bd65b;
+  outline-offset: 2px;
+}
+
+.container .leftMainCont .seat.selected,
+.container .leftMainCont .seat.selected::after {
+  background-color: rgb(168, 245, 168);
+  border-color: rgba(0, 190, 0, 0.336);
+}
+
+.container .mainSeatCont {
+  background-color: aliceblue;
+  height: 100%;
+  padding: 3rem 1rem;
+  position: relative;
+  min-width: 100%;
+  overflow-x: auto;
+  margin: 0% auto;
+}
+
+.container .mainSeatCont .seatCont {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  /* center rows relative to full seat area */
+  margin: 0 auto;
+  /* align with centered SCREEN header */
+}
+
+.container .mainSeatCont .seatCont .seatRowCont {
+  display: flex;
+  /* group of consecutive columns */
+  flex-direction: row;
+  /* desktop: columns side‑by‑side */
+  align-items: flex-start;
+}
+
+/* Each logical column stacks seats vertically and centers them */
+.container .mainSeatCont .seatCont .row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container .mainSeatCont .seatCont .seatRowCont2 {
+  margin: 0 1.5rem;
+}
+
+.container .leftMainCont .screen {
+  height: 20px;
+  width: 70%;
+  background-color: #686868;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 10px 10px;
+  max-width: var(--stage-max);
+  user-select: none;
+  margin: 0 auto;
+}
+
+.container .leftMainCont .screen small {
+  color: #bdbdbd;
+  font-size: 12px;
+  letter-spacing: 0.35rem;
+}
+
+/* ----------------------
+   Mobile-first tweaks
+   ---------------------- */
+/* Base layout already stacks (no flex on .container by default).
+   Below 800px we optimize spacing, tap targets, and wrapping. */
+
+@media (max-width: 799px) {
+
+  /* Overall rhythm */
   body {
-    background-color: #f1f1f1;
-    font-size: 18px;
-    line-height: 1.5;
+    font-size: 16px;
   }
-  .container .legendContainer {
-    background-color: #f1f1f1;
-    display: flex;
-    padding: 1rem;
-    width: 100%;
-  }
-  
+
   .container .legendContainer ul {
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+
+  .container .leftMainCont .screen {
+    width: 90%;
+    max-width: none;
+  }
+
+  .container .mainSeatCont {
+    padding: 1rem 0.5rem 0.75rem;
+    /* trim bottom gap under seats */
+    overflow-x: hidden;
+    /* we’ll stack seat blocks instead of scrolling horizontally */
+    height: auto;
+    /* avoid forcing extra space */
+  }
+
+  .container .mainSeatCont .seatCont {
+    flex-wrap: wrap;
+    /* stack the seat blocks */
+    gap: 0.75rem 0;
+    /* vertical rhythm between blocks */
+  }
+
+  .container .mainSeatCont .seatCont .seatRowCont {
     width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-    list-style: none;
-    max-width: 600px;
-    margin: 0 auto;
-    user-select: none;
-  }
-  .container .legendContainer ul li {
-    display: flex;
-    align-items: center;
+    /* make each block full width */
     justify-content: center;
+    flex-direction: column;
+    /* mobile: stack columns top-to-bottom */
+    align-items: center;
+    gap: 0.35rem;
   }
-  .container .legendContainer ul li small {
-    color: #bdbdbd;
-    font-size: 14px;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
+
+  /* On phones, each logical row should be a horizontal line of seats */
+  .container .mainSeatCont .seatCont .row {
+    flex-direction: row;
   }
-  
+
+  .container .mainSeatCont .seatCont .seatRowCont2 {
+    margin: 0;
+  }
+
+  /* Seat hit area stays comfortable on touch */
   .container .leftMainCont .seat {
-    height: 36px;
-    width: 42px;
-    border: 1px solid #bdbdbd;
-    border-radius: 3px 3px 6px 6px;
-    margin: 12px;
-    margin-bottom: 0.9rem;
-    position: relative;
-    cursor: pointer;
-    background-color: #fff;
-    transition: 0.3s ease background-color;
+    margin: 10px;
+    /* slightly tighter spacing */
+    height: 38px;
+    width: 44px;
   }
-  /* Seat label displayed on each seat */
-  .container .leftMainCont .seat::before {
-    content: attr(data-label);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 12px;
-    color: #333;
-    z-index: 1;
-    pointer-events: none;
-    font-weight: 600;
-  }
+
   .container .leftMainCont .seat::after {
-    content: "";
     height: 30px;
     width: 28px;
-    border: 1px solid #bdbdbd;
-    position: absolute;
-    left: 50%;
-    top: 29%;
-    transform: translate(-50%, -50%);
-    background-color: #fff;
-    border-radius: 3px 3px;
-    transition: 0.3s ease background-color;
-    z-index: 0;
   }
-  
-  .container .leftMainCont .seat:hover,
-  .container .leftMainCont .seat:hover::after {
-    background-color: #e6e6e6;
-  }
-  .container .leftMainCont .seat { transition: transform 0.12s ease, background-color 0.3s ease; }
-  .container .leftMainCont .seat.selected { transform: scale(1.04); }
-  
-  .container .legendContainer .seat {
-    cursor: default;
-    margin-bottom: 10px;
-  }
-  .container .legendContainer .seat:hover,
-  .container .legendContainer .seat:hover::after {
-    background-color: #fff;
-  }
-  .container .leftMainCont .seat.occupied,
-  .container .leftMainCont .seat.occupied::after {
-    background-color: lightgray;
-  }
-  .container .leftMainCont .seat.occupied { cursor: not-allowed; }
-  .container .leftMainCont .seat:focus-visible {
-    outline: 2px solid #5bd65b;
-    outline-offset: 2px;
-  }
-  .container .leftMainCont .seat.selected,
-  .container .leftMainCont .seat.selected::after {
-    background-color: rgb(168, 245, 168);
-    border-color: rgba(0, 190, 0, 0.336);
-  }
-  
-  .container .mainSeatCont {
-    background-color: aliceblue;
-    height: 100%;
-    padding: 3rem 1rem;
-    position: relative;
-    min-width: 100%;
-    overflow-x: auto;
-    margin: 0% auto;
-  }
-  
-  .container .mainSeatCont .seatCont {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .container .mainSeatCont .seatCont .seatRowCont {
-    display: flex;
-  }
-  .container .mainSeatCont .seatCont .seatRowCont2 {
-    margin: 0 1.5rem;
-  }
-  .container .leftMainCont .screen {
-    height: 20px;
-    width: 70%;
-    background-color: #686868;
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0 0 10px 10px;
-    max-width: 460px;
-    user-select: none;
-    margin: 0 auto;
-  }
-  .container .leftMainCont .screen small {
-    color: #bdbdbd;
-    font-size: 12px;
-    letter-spacing: 0.35rem;
-  }
-  /*  */
+
+  /* Right/summary panel spacing */
   .container .confirmCont {
-    background-color: #f1f1f1;
-    display: flex;
-    flex-direction: column;
-    padding: 2rem;
+    padding: 1rem;
   }
-  .container .confirmCont .rightTopCont {
+
+  .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeatsHolder {
+    grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  }
+
+  .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat {
+    min-width: 84px;
+    max-width: 100%;
+    padding: 0.45rem 1.4rem;
+  }
+
+  .container .confirmCont .rightBottomCont .buttonCont {
+    gap: 0.75rem;
+  }
+
+  .container .confirmCont .rightBottomCont .buttonCont button {
+    width: 100%;
+    padding: 0.9rem 0.75rem;
+  }
+}
+
+/* Compact phones */
+@media (max-width: 380px) {
+  .container .leftMainCont .seat {
+    margin: 8px;
+    height: 34px;
+    width: 40px;
+  }
+
+  .container .leftMainCont .seat::before {
+    font-size: 11px;
+  }
+
+  .container .leftMainCont .screen small {
+    letter-spacing: 0.2rem;
+  }
+
+  .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeatsHolder {
+    grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+  }
+
+  .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat {
+    min-width: 76px;
+    padding: 0.4rem 1.1rem;
+  }
+}
+
+/*  */
+.container .confirmCont {
+  background-color: #f1f1f1;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+}
+
+.container .confirmCont .rightTopCont {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  border-bottom: 1px solid #c4c4c4;
+}
+
+.container .confirmCont .movieInfo div {
+  margin-bottom: 0.8rem;
+}
+
+.container .confirmCont .movieInfo p {
+  color: #bdbdbd;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 14px;
+  margin-bottom: 0.25rem;
+}
+
+.container .confirmCont .movieInfo .date,
+.container .confirmCont .movieInfo .dateOn {
+  color: #414141;
+  font-size: 16px;
+  margin-top: 0.5rem;
+}
+
+.container .confirmCont .selectMovie select {
+  padding: 0.55rem 0.9rem;
+  border: 1px solid #c4c4c4;
+  outline: none;
+  border-radius: 3px;
+  color: #686868;
+  font-family: inherit;
+  margin-top: 0.4rem;
+  font-size: 1rem;
+  background-color: transparent;
+}
+
+.container .confirmCont .movieInfo h1 {
+  color: #414141;
+  margin-top: 0.2rem;
+}
+
+/* Theme toggle */
+.themeToggle label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+}
+
+.themeToggle input {
+  accent-color: lightgreen;
+}
+
+.themeToggle span {
+  color: #414141;
+  font-size: 1rem;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont {
+  border-bottom: 1px solid #c4c4c4;
+  padding: 1rem 0;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont p {
+  font-size: 12px;
+  color: #bdbdbd;
+}
+
+.container .rightBottomCont .noSelected {
+  text-align: center;
+  color: crimson;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  color: #bdbdbd;
+  text-transform: uppercase;
+  width: 200px;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat {
+  border: 1px solid lightgreen;
+  color: lightgreen;
+  padding: 0.5rem 2.1rem;
+  border-radius: 3px;
+  user-select: none;
+  min-width: 92px;
+  max-width: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  float: left;
+  position: relative;
+  font-size: 14px;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat::after {
+  content: '×';
+  position: absolute;
+  right: 6px;
+  top: 2px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat:hover::after {
+  opacity: 0.9;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat:hover {
+  background-color: rgba(144, 238, 144, 0.151);
+  transition: 0.3s ease background-color;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeatsHolder {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 92px));
+  grid-column-gap: 1rem;
+  grid-row-gap: 0.75rem;
+  margin-top: 0.9rem;
+  grid-auto-columns: auto;
+  position: relative;
+}
+
+.container .confirmCont .rightBottomCont .numberOfSeatsCont {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  user-select: none;
+}
+
+.container .confirmCont .rightBottomCont .numberOfSeatsCont .numberOfSeatEl p {
+  color: #414141;
+  font-size: 16px;
+}
+
+.container .confirmCont .rightBottomCont .numberOfSeatsCont .priceCont {
+  color: crimson;
+  font-size: 16px;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont button {
+  padding: 1rem 2.2rem;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont .cancelBtn button {
+  background-color: crimson;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont .cancelBtn button:hover {
+  background-color: rgb(204, 0, 41);
+  transition: 0.3s ease background-color;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont .proceedBtnEl button {
+  background-color: lightgreen;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+  transition: 0.3s ease background-color;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont .proceedBtnEl button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont .proceedBtnEl button:hover {
+  background-color: rgba(84, 216, 84, 0.808);
+}
+
+/* Success Modal */
+body.modal-active {
+  overflow: hidden;
+  padding-right: 17px;
+}
+
+.overlay {
+  position: fixed;
+  height: 100vh;
+  width: 100%;
+  background-color: #000;
+  top: 0%;
+  left: 0%;
+  opacity: 0.3;
+  display: none;
+}
+
+body.modal-active .overlay {
+  display: block;
+}
+
+.successModal {
+  width: 80%;
+  max-width: 450px;
+  background-color: #fff;
+  position: fixed;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 0.4rem;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  padding: 1rem;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background-image: url(https://github.com/Dinesh1042/Vanilla-JavaScript-Projects/blob/main/Movie%20Booking/asset/c1.png?raw=true);
+  background-size: 140%;
+  background-position: top center;
+  user-select: none;
+  z-index: 11;
+  animation: 1s ease modalAnimation;
+}
+
+@keyframes modalAnimation {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 12px)) scale(0.98);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.successModal .modalTop {
+  padding: 1rem;
+}
+
+.successModal .modalTop img {
+  width: 100px;
+}
+
+.successModal .modalCenter {
+  padding: 0.5rem 2.5rem;
+}
+
+.successModal .modalCenter h1 {
+  color: #414141;
+}
+
+.successModal .modalCenter p {
+  color: #686868;
+  margin-top: 0.5rem;
+}
+
+.successModal .modalBottom {
+  margin-top: 1rem;
+}
+
+.successModal .modalBottom button {
+  background-color: lightgreen;
+  border: none;
+  outline: none;
+  padding: 0.75rem 1.3rem;
+  border-radius: 0.2rem;
+  cursor: pointer;
+  color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+  transition: 0.3s ease background-color;
+}
+
+.successModal .modalBottom button:hover {
+  background-color: rgba(84, 216, 84, 0.808);
+}
+
+/* Desktop */
+
+@media (min-width: 800px) {
+  .container {
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+  }
+
+  /* Clamp the seat grid to the same width as the SCREEN bar */
+  .container .mainSeatCont .seatCont {
+    max-width: var(--stage-max);
+    margin: 0 auto;
+    justify-content: center;
+    /* center the three blocks horizontally */
     align-items: flex-start;
-    border-bottom: 1px solid #c4c4c4;
+    /* align blocks to the top under SCREEN */
+    flex-wrap: nowrap;
+    gap: 0;
+    /* keep aisle solely via seatRowCont2 */
   }
-  .container .confirmCont .movieInfo div {
+
+  .container .confirmCont {
+    min-width: 300px;
+    max-width: 300px;
+    float: right;
+    padding: 2rem;
+    min-height: 100vh;
+  }
+
+  .container .legendContainer {
+    justify-content: start;
+    align-items: flex-start;
+  }
+
+  .container .legendContainer ul {
+    margin: unset;
+  }
+
+  .container .confirmCont .rightBottomCont .buttonCont {
+    flex-direction: column-reverse;
+  }
+
+  .container .confirmCont .rightBottomCont .buttonCont button {
+    width: 100%;
+    padding: 0.8rem 0.75rem;
     margin-bottom: 0.8rem;
   }
-  .container .confirmCont .movieInfo p {
-    color: #bdbdbd;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 14px;
-    margin-bottom: 0.25rem;
-  }
-  .container .confirmCont .movieInfo .date,
-  .container .confirmCont .movieInfo .dateOn {
-    color: #414141;
-    font-size: 16px;
-    margin-top: 0.5rem;
-  }
-  .container .confirmCont .selectMovie select {
-    padding: 0.55rem 0.9rem;
-    border: 1px solid #c4c4c4;
-    outline: none;
-    border-radius: 3px;
-    color: #686868;
-    font-family: inherit;
-    margin-top: 0.4rem;
-    font-size: 1rem;
-    background-color: transparent;
-  }
-  .container .confirmCont .movieInfo h1 {
-    color: #414141;
-    margin-top: 0.2rem;
-  }
-  /* Theme toggle */
-  .themeToggle label { display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer; }
-  .themeToggle input { accent-color: lightgreen; }
-  .themeToggle span { color: #414141; font-size: 1rem; }
-  
-  .container .confirmCont .rightBottomCont .selectedSeatCont {
-    border-bottom: 1px solid #c4c4c4;
-    padding: 1rem 0;
-  }
-  .container .confirmCont .rightBottomCont .selectedSeatCont p {
-    font-size: 12px;
-    color: #bdbdbd;
-  }
-  .container .rightBottomCont .noSelected {
-    text-align: center;
-    color: crimson;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 12px;
-    color: #bdbdbd;
-    text-transform: uppercase;
-    width: 200px;
-  }
-  .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat {
-    border: 1px solid lightgreen;
-    color: lightgreen;
-    padding: 0.5rem 2.1rem;
-    border-radius: 3px;
-    user-select: none;
-    min-width: 92px;
-    max-width: 92px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    float: left;
-    position: relative;
-    font-size: 14px;
-  }
-  .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat::after {
-    content: '×';
-    position: absolute;
-    right: 6px;
-    top: 2px;
-    font-weight: 700;
-    font-size: 12px;
-    line-height: 1;
-    opacity: 0.6;
-  }
-  .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat:hover::after { opacity: 0.9; }
-  .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat:hover {
-    background-color: rgba(144, 238, 144, 0.151);
-    transition: 0.3s ease background-color;
-  }
-  .container
-    .confirmCont
-    .rightBottomCont
-    .selectedSeatCont
-    .selectedSeatsHolder {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(92px, 92px));
-    grid-column-gap: 1rem;
-    grid-row-gap: 0.75rem;
-    margin-top: 0.9rem;
-    grid-auto-columns: auto;
-    position: relative;
-  }
-  .container .confirmCont .rightBottomCont .numberOfSeatsCont {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    align-items: center;
-    padding: 1.5rem 1rem;
-    user-select: none;
-  }
-  .container .confirmCont .rightBottomCont .numberOfSeatsCont .numberOfSeatEl p {
-    color: #414141;
-    font-size: 16px;
-  }
-  .container .confirmCont .rightBottomCont .numberOfSeatsCont .priceCont {
-    color: crimson;
-    font-size: 16px;
-  }
-  .container .confirmCont .rightBottomCont .buttonCont {
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem;
-  }
-  .container .confirmCont .rightBottomCont .buttonCont button {
-    padding: 1rem 2.2rem;
-    cursor: pointer;
-    border: none;
-    outline: none;
-    background-color: transparent;
-    color: #fff;
-    border-radius: 6px;
-    font-size: 1rem;
-  }
-  .container .confirmCont .rightBottomCont .buttonCont .cancelBtn button {
-    background-color: crimson;
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
-  }
-  .container .confirmCont .rightBottomCont .buttonCont .cancelBtn button:hover {
-    background-color: rgb(204, 0, 41);
-    transition: 0.3s ease background-color;
-  }
-  .container .confirmCont .rightBottomCont .buttonCont .proceedBtnEl button {
-    background-color: lightgreen;
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
-    transition: 0.3s ease background-color;
-  }
-  .container .confirmCont .rightBottomCont .buttonCont .proceedBtnEl button:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-  }
-  .container
-    .confirmCont
-    .rightBottomCont
-    .buttonCont
-    .proceedBtnEl
-    button:hover {
-    background-color: rgba(84, 216, 84, 0.808);
-  }
-  
-  /* Success Modal */
-  body.modal-active {
-    overflow: hidden;
-    padding-right: 17px;
-  }
-  .overlay {
-    position: fixed;
-    height: 100vh;
-    width: 100%;
-    background-color: #000;
-    top: 0%;
-    left: 0%;
-    opacity: 0.3;
-    display: none;
-  }
-  body.modal-active .overlay {
-    display: block;
-  }
-  
-  .successModal {
-    width: 80%;
-    max-width: 450px;
-    background-color: #fff;
-    position: fixed;
-    top: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    border-radius: 0.4rem;
-    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-    padding: 1rem;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    background-image: url(https://github.com/Dinesh1042/Vanilla-JavaScript-Projects/blob/main/Movie%20Booking/asset/c1.png?raw=true);
-    background-size: 140%;
-    background-position: top center;
-    user-select: none;
-    z-index: 11;
-    animation: 1s ease modalAnimation;
-  }
-  @keyframes modalAnimation {
-    0% { opacity: 0; transform: translate(-50%, calc(-50% + 12px)) scale(0.98); }
-    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  }
-  .successModal .modalTop {
-    padding: 1rem;
-  }
-  .successModal .modalTop img {
-    width: 100px;
-  }
-  .successModal .modalCenter {
-    padding: 0.5rem 2.5rem;
-  }
-  .successModal .modalCenter h1 {
-    color: #414141;
-  }
-  .successModal .modalCenter p {
-    color: #686868;
-    margin-top: 0.5rem;
-  }
-  .successModal .modalBottom {
-    margin-top: 1rem;
-  }
-  .successModal .modalBottom button {
-    background-color: lightgreen;
-    border: none;
-    outline: none;
-    padding: 0.75rem 1.3rem;
-    border-radius: 0.2rem;
-    cursor: pointer;
-    color: #fff;
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
-    transition: 0.3s ease background-color;
-  }
-  .successModal .modalBottom button:hover {
-    background-color: rgba(84, 216, 84, 0.808);
-  }
-  /* Desktop */
-  
-  @media (min-width: 800px) {
-    .container {
-      display: flex;
-    }
-    .container .confirmCont {
-      min-width: 300px;
-      max-width: 300px;
-      float: right;
-      padding: 2rem;
-      min-height: 100vh;
-    }
-    .container .legendContainer {
-      justify-content: start;
-      align-items: flex-start;
-    }
-    .container .legendContainer ul {
-      margin: unset;
-    }
-    .container .confirmCont .rightBottomCont .buttonCont {
-      flex-direction: column-reverse;
-    }
-    .container .confirmCont .rightBottomCont .buttonCont button {
-      width: 100%;
-      padding: 0.8rem 0.75rem;
-      margin-bottom: 0.8rem;
-    }
-  }
-  
-  /* Manual color-scheme tied to toggle */
-  body[data-theme="light"] { color-scheme: light; }
-  body[data-theme="dark"] { color-scheme: dark; }
+}
 
-  /* Manual Dark Mode only via data-theme attribute */
+/* Manual color-scheme tied to toggle */
+body[data-theme="light"] {
+  color-scheme: light;
+}
 
-  /* Manual theme overrides */
-  body[data-theme="dark"] { background-color: #121212; }
-  body[data-theme="dark"] .leftCont { background-color: #161b22; }
-  body[data-theme="dark"] .container .legendContainer { background-color: #121212; }
-  body[data-theme="dark"] .container .mainSeatCont { background-color: #0f141a; }
-  body[data-theme="dark"] .container .confirmCont { background-color: #121212; }
-  body[data-theme="dark"] .container .legendContainer ul li small,
-  body[data-theme="dark"] .container .confirmCont .movieInfo p,
-  body[data-theme="dark"] .container .rightBottomCont .noSelected { color: #9aa0a6; }
-  body[data-theme="dark"] .container .confirmCont .movieInfo h1,
-  body[data-theme="dark"] .container .confirmCont .movieInfo .date,
-  body[data-theme="dark"] .container .confirmCont .movieInfo .dateOn,
-  body[data-theme="dark"] .container .confirmCont .rightBottomCont .numberOfSeatsCont .numberOfSeatEl p { color: #e0e0e0; }
-  body[data-theme="dark"] .themeToggle span { color: #e0e0e0; }
-  body[data-theme="dark"] .container .leftMainCont .seat { background-color: #1f2a36; border-color: #3b4a59; }
-  body[data-theme="dark"] .container .leftMainCont .seat::after { background-color: #1b2430; border-color: #3b4a59; }
-  body[data-theme="dark"] .container .leftMainCont .seat::before { color: #e0e0e0; }
-  body[data-theme="dark"] .container .leftMainCont .seat:hover,
-  body[data-theme="dark"] .container .leftMainCont .seat:hover::after { background-color: #273444; }
-  body[data-theme="dark"] .container .leftMainCont .seat.occupied,
-  body[data-theme="dark"] .container .leftMainCont .seat.occupied::after { background-color: #3a3a3a; }
-  body[data-theme="dark"] .container .leftMainCont .seat.selected,
-  body[data-theme="dark"] .container .leftMainCont .seat.selected::after { background-color: #1f4d1f; border-color: rgba(0, 190, 0, 0.336); }
-  body[data-theme="dark"] .container .leftMainCont .seat.selected::before { color: #b7ffb7; }
-  body[data-theme="dark"] .container .leftMainCont .screen { background-color: #586069; }
-  body[data-theme="dark"] .container .leftMainCont .screen small { color: #9aa0a6; }
-  body[data-theme="dark"] .container .confirmCont .rightBottomCont .selectedSeatCont { border-color: #2b2b2b; }
-  body[data-theme="dark"] .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat { border-color: #5bd65b; color: #b7ffb7; }
-  body[data-theme="dark"] .successModal { background-color: #1e1e1e; box-shadow: rgba(0, 0, 0, 0.5) 0px 2px 12px 0px; background-image: none; }
-  body[data-theme="dark"] .successModal .modalCenter h1 { color: #e0e0e0; }
-  body[data-theme="dark"] .successModal .modalCenter p { color: #bdbdbd; }
+body[data-theme="dark"] {
+  color-scheme: dark;
+}
 
-  /* Force-light overrides to beat OS-dark */
-  body[data-theme="light"] { background-color: #f1f1f1; }
-  body[data-theme="light"] .leftCont { background-color: aliceblue; }
-  body[data-theme="light"] .container .legendContainer { background-color: #f1f1f1; }
-  body[data-theme="light"] .container .mainSeatCont { background-color: aliceblue; }
-  body[data-theme="light"] .container .confirmCont { background-color: #f1f1f1; }
-  body[data-theme="light"] .container .legendContainer ul li small,
-  body[data-theme="light"] .container .confirmCont .movieInfo p { color: #bdbdbd; }
-  body[data-theme="light"] .container .confirmCont .movieInfo h1,
-  body[data-theme="light"] .container .confirmCont .movieInfo .date,
-  body[data-theme="light"] .container .confirmCont .movieInfo .dateOn,
-  body[data-theme="light"] .container .confirmCont .rightBottomCont .numberOfSeatsCont .numberOfSeatEl p { color: #414141; }
-  body[data-theme="light"] .themeToggle span { color: #414141; }
-  body[data-theme="light"] .container .leftMainCont .seat { background-color: #fff; border-color: #bdbdbd; }
-  body[data-theme="light"] .container .leftMainCont .seat::after { background-color: #fff; border-color: #bdbdbd; }
-  body[data-theme="light"] .container .leftMainCont .seat::before { color: #333; }
-  body[data-theme="light"] .container .leftMainCont .seat:hover,
-  body[data-theme="light"] .container .leftMainCont .seat:hover::after { background-color: #e6e6e6; }
-  body[data-theme="light"] .container .leftMainCont .seat.occupied,
-  body[data-theme="light"] .container .leftMainCont .seat.occupied::after { background-color: lightgray; }
-  body[data-theme="light"] .container .leftMainCont .seat.selected,
-  body[data-theme="light"] .container .leftMainCont .seat.selected::after { background-color: rgb(168, 245, 168); border-color: rgba(0, 190, 0, 0.336); }
-  body[data-theme="light"] .container .leftMainCont .screen { background-color: #686868; }
-  body[data-theme="light"] .container .leftMainCont .screen small { color: #bdbdbd; }
-  body[data-theme="light"] .container .confirmCont .rightBottomCont .selectedSeatCont { border-color: #c4c4c4; }
-  body[data-theme="light"] .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat { border-color: lightgreen; color: lightgreen; }
-  body[data-theme="light"] .successModal { background-color: #fff; box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; }
-  body[data-theme="light"] .successModal .modalCenter h1 { color: #414141; }
-  body[data-theme="light"] .successModal .modalCenter p { color: #686868; }
+/* Manual Dark Mode only via data-theme attribute */
+
+/* Manual theme overrides */
+body[data-theme="dark"] {
+  background-color: #121212;
+}
+
+body[data-theme="dark"] .leftCont {
+  background-color: #161b22;
+}
+
+body[data-theme="dark"] .container .legendContainer {
+  background-color: #121212;
+}
+
+body[data-theme="dark"] .container .mainSeatCont {
+  background-color: #0f141a;
+}
+
+body[data-theme="dark"] .container .confirmCont {
+  background-color: #121212;
+}
+
+body[data-theme="dark"] .container .legendContainer ul li small,
+body[data-theme="dark"] .container .confirmCont .movieInfo p,
+body[data-theme="dark"] .container .rightBottomCont .noSelected {
+  color: #9aa0a6;
+}
+
+body[data-theme="dark"] .container .confirmCont .movieInfo h1,
+body[data-theme="dark"] .container .confirmCont .movieInfo .date,
+body[data-theme="dark"] .container .confirmCont .movieInfo .dateOn,
+body[data-theme="dark"] .container .confirmCont .rightBottomCont .numberOfSeatsCont .numberOfSeatEl p {
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .themeToggle span {
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat {
+  background-color: #1f2a36;
+  border-color: #3b4a59;
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat::after {
+  background-color: #1b2430;
+  border-color: #3b4a59;
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat::before {
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat:hover,
+body[data-theme="dark"] .container .leftMainCont .seat:hover::after {
+  background-color: #273444;
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat.occupied,
+body[data-theme="dark"] .container .leftMainCont .seat.occupied::after {
+  background-color: #3a3a3a;
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat.selected,
+body[data-theme="dark"] .container .leftMainCont .seat.selected::after {
+  background-color: #1f4d1f;
+  border-color: rgba(0, 190, 0, 0.336);
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat.selected::before {
+  color: #b7ffb7;
+}
+
+body[data-theme="dark"] .container .leftMainCont .screen {
+  background-color: #586069;
+}
+
+body[data-theme="dark"] .container .leftMainCont .screen small {
+  color: #9aa0a6;
+}
+
+body[data-theme="dark"] .container .confirmCont .rightBottomCont .selectedSeatCont {
+  border-color: #2b2b2b;
+}
+
+body[data-theme="dark"] .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat {
+  border-color: #5bd65b;
+  color: #b7ffb7;
+}
+
+body[data-theme="dark"] .successModal {
+  background-color: #1e1e1e;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 2px 12px 0px;
+  background-image: none;
+}
+
+body[data-theme="dark"] .successModal .modalCenter h1 {
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .successModal .modalCenter p {
+  color: #bdbdbd;
+}
+
+/* Force-light overrides to beat OS-dark */
+body[data-theme="light"] {
+  background-color: #f1f1f1;
+}
+
+body[data-theme="light"] .leftCont {
+  background-color: aliceblue;
+}
+
+body[data-theme="light"] .container .legendContainer {
+  background-color: #f1f1f1;
+}
+
+body[data-theme="light"] .container .mainSeatCont {
+  background-color: aliceblue;
+}
+
+body[data-theme="light"] .container .confirmCont {
+  background-color: #f1f1f1;
+}
+
+body[data-theme="light"] .container .legendContainer ul li small,
+body[data-theme="light"] .container .confirmCont .movieInfo p {
+  color: #bdbdbd;
+}
+
+body[data-theme="light"] .container .confirmCont .movieInfo h1,
+body[data-theme="light"] .container .confirmCont .movieInfo .date,
+body[data-theme="light"] .container .confirmCont .movieInfo .dateOn,
+body[data-theme="light"] .container .confirmCont .rightBottomCont .numberOfSeatsCont .numberOfSeatEl p {
+  color: #414141;
+}
+
+body[data-theme="light"] .themeToggle span {
+  color: #414141;
+}
+
+body[data-theme="light"] .container .leftMainCont .seat {
+  background-color: #fff;
+  border-color: #bdbdbd;
+}
+
+body[data-theme="light"] .container .leftMainCont .seat::after {
+  background-color: #fff;
+  border-color: #bdbdbd;
+}
+
+body[data-theme="light"] .container .leftMainCont .seat::before {
+  color: #333;
+}
+
+body[data-theme="light"] .container .leftMainCont .seat:hover,
+body[data-theme="light"] .container .leftMainCont .seat:hover::after {
+  background-color: #e6e6e6;
+}
+
+body[data-theme="light"] .container .leftMainCont .seat.occupied,
+body[data-theme="light"] .container .leftMainCont .seat.occupied::after {
+  background-color: lightgray;
+}
+
+body[data-theme="light"] .container .leftMainCont .seat.selected,
+body[data-theme="light"] .container .leftMainCont .seat.selected::after {
+  background-color: rgb(168, 245, 168);
+  border-color: rgba(0, 190, 0, 0.336);
+}
+
+body[data-theme="light"] .container .leftMainCont .screen {
+  background-color: #686868;
+}
+
+body[data-theme="light"] .container .leftMainCont .screen small {
+  color: #bdbdbd;
+}
+
+body[data-theme="light"] .container .confirmCont .rightBottomCont .selectedSeatCont {
+  border-color: #c4c4c4;
+}
+
+body[data-theme="light"] .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat {
+  border-color: lightgreen;
+  color: lightgreen;
+}
+
+body[data-theme="light"] .successModal {
+  background-color: #fff;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+body[data-theme="light"] .successModal .modalCenter h1 {
+  color: #414141;
+}
+
+body[data-theme="light"] .successModal .modalCenter p {
+  color: #686868;
+}
