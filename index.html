@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="index.css" />
 </head>
 
-<body>
+<body data-theme="light">
     <section id="section">
         <div class="container">
             <!-- leftCont -->
@@ -135,6 +135,12 @@
                                     <select id="selectMovie"></select>
                                 </label>
                             </div>
+                            <div class="themeToggle">
+                                <label>
+                                    <input type="checkbox" id="themeToggle" />
+                                    <span>Dark mode</span>
+                                </label>
+                            </div>
                             <div class="movieName">
                                 <p>MOVIE NAME</p>
                                 <h1 id="movieName">flash</h1>
@@ -174,7 +180,7 @@
                                 <button id="cancelBtn">Cancel</button>
                             </div>
                             <div class="proceedBtnEl">
-                                <button id="proceedBtn">Continue</button>
+                                <button id="proceedBtn" disabled>Continue</button>
                             </div>
                         </div>
                     </div>
