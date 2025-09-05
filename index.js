@@ -35,7 +35,7 @@ dropDown.addEventListener("change", (event) => {
     // persist movie selection
     try {
         localStorage.setItem('selectedMovieIndex', String(dropDown.selectedIndex));
-    } catch (_) {}
+    } catch (_) { }
 });
 
 //default case
@@ -100,13 +100,13 @@ refreshSeatA11y();
                 }
             });
         }
-    } catch (_) {}
+    } catch (_) { }
     try {
         const savedMovieIndex = localStorage.getItem('selectedMovieIndex');
         if (savedMovieIndex !== null && dropDown.options[Number(savedMovieIndex)]) {
             dropDown.selectedIndex = Number(savedMovieIndex);
         }
-    } catch (_) {}
+    } catch (_) { }
 
     // Set movie name/price and p based on current dropdown selection
     const sel = dropDown.selectedOptions[0];
@@ -145,7 +145,7 @@ refreshSeatA11y();
             numSeats.textContent = arraySeats.length;
             totalP.textContent = '$' + (p * arraySeats.length);
         }
-    } catch (_) {}
+    } catch (_) { }
     refreshSeatA11y();
 })();
 
@@ -191,7 +191,7 @@ updateProceedState();
         toggle.addEventListener('change', (e) => {
             const theme = e.target.checked ? 'dark' : 'light';
             applyTheme(theme);
-            try { localStorage.setItem('theme', theme); } catch (_) {}
+            try { localStorage.setItem('theme', theme); } catch (_) { }
         });
     }
 })();
@@ -216,7 +216,7 @@ for (let i = 0; i < seat.length; i++) {
                 if (noSel) noSel.remove();
 
                 // persist selection
-                try { localStorage.setItem('selectedSeats', JSON.stringify(arraySeats)); } catch (_) {}
+                try { localStorage.setItem('selectedSeats', JSON.stringify(arraySeats)); } catch (_) { }
                 updateProceedState();
             }
         } else {
@@ -239,7 +239,7 @@ for (let i = 0; i < seat.length; i++) {
             totalP.textContent = '$' + (p * arraySeats.length);
 
             // persist selection
-            try { localStorage.setItem('selectedSeats', JSON.stringify(arraySeats)); } catch (_) {}
+            try { localStorage.setItem('selectedSeats', JSON.stringify(arraySeats)); } catch (_) { }
             updateProceedState();
         }
     });
@@ -259,7 +259,7 @@ for (let i = 0; i < seat.length; i++) {
     if (!dateEl) return;
     const d = new Date();
     const months = [
-        'January','February','March','April','May','June','July','August','September','October','November','December'
+        'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
     ];
     const day = String(d.getDate());
     const month = months[d.getMonth()];
@@ -282,8 +282,8 @@ contBtn.addEventListener("click", (event) => {
     const bookedMovie = sel?.dataset?.name || 'Flash';
     const bookedPrice = p * bookedSeats.length;
 
-    // mark all selected as occupied
-    const selSeatsAll = document.querySelectorAll(".selected");
+    // mark all selected seats in the seat area as occupied (ignore legend icons)
+    const selSeatsAll = document.querySelectorAll("#seatCont .seat.selected");
     selSeatsAll.forEach(s => {
         s.classList.add("occupied");
         s.classList.remove("selected");
@@ -298,13 +298,13 @@ contBtn.addEventListener("click", (event) => {
     holder.innerHTML = '<span class="noSelected">No Seat Selected</span>';
 
     // clear persisted selection since it's now booked
-    try { localStorage.setItem('selectedSeats', '[]'); } catch (_) {}
+    try { localStorage.setItem('selectedSeats', '[]'); } catch (_) { }
     // persist occupied seats
     try {
         const prev = JSON.parse(localStorage.getItem('occupiedSeats') || '[]');
         const next = Array.from(new Set([...(Array.isArray(prev) ? prev : []), ...bookedSeats]));
         localStorage.setItem('occupiedSeats', JSON.stringify(next));
-    } catch (_) {}
+    } catch (_) { }
     updateProceedState();
 
     // Build and show success modal (uses existing CSS)
@@ -358,7 +358,8 @@ contBtn.addEventListener("click", (event) => {
 //Add eventListerner to Cancel Button
 const cancelBtn = document.querySelector("#cancelBtn");
 cancelBtn.addEventListener("click", (event) => {
-    const selSeatsAll = document.querySelectorAll(".selected");
+    // Only clear selected seats inside the seat container; keep legend icons intact
+    const selSeatsAll = document.querySelectorAll("#seatCont .seat.selected");
     selSeatsAll.forEach(s => s.classList.remove("selected"));
 
     arraySeats.length = 0;
@@ -371,7 +372,7 @@ cancelBtn.addEventListener("click", (event) => {
     // (leaving movie selection as-is on cancel, your default block already set initial)
 
     // clear persisted selection on cancel
-    try { localStorage.setItem('selectedSeats', '[]'); } catch (_) {}
+    try { localStorage.setItem('selectedSeats', '[]'); } catch (_) { }
     updateProceedState();
     refreshSeatA11y();
 });
