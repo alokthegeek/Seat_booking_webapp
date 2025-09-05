@@ -1,5 +1,4 @@
 # Seat_booking_webapp
-https://seat-booking-webapp.vercel.app/
 
 Interactive movie seat selection built with HTML/CSS/JS (no framework).
 
