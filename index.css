@@ -140,6 +140,118 @@ body {
   border-color: rgba(0, 190, 0, 0.336);
 }
 
+
+
+
+
+/* ===== Seat layout invariants (desktop & mobile) ===== */
+#seatCont{
+  display: flex !important;
+  flex-direction: column !important;   /* rows stacked top->bottom */
+  align-items: center !important;
+  gap: 10px !important;
+}
+#seatCont .row{
+  display: flex !important;
+  flex-direction: row !important;      /* seats left->right */
+  flex-wrap: nowrap !important;        /* never wrap vertically */
+  gap: 10px !important;
+}
+#seatCont .row .seat{
+  flex: 0 0 auto !important;
+}
+/* Desktop media rules must NOT flip the direction */
+@media (min-width: 768px){
+  #seatCont{ flex-direction: column !important; }
+  #seatCont .row{ flex-direction: row !important; flex-wrap: nowrap !important; }
+}
+
+/* Sensible responsive sizing so seats don't wrap on desktop */
+#seatCont .row .seat{
+  width: clamp(28px, 3.2vw, 38px);
+  height: clamp(28px, 3.2vw, 38px);
+}
+
+/* Kill legacy grid-based column flow if present */
+#seatCont{
+  grid-auto-flow: row !important;
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+}
+#seatCont .row{
+  grid-auto-flow: column !important;
+  grid-template-columns: none !important;
+}
+/* Desktop media rules must NOT flip the direction */
+@media (min-width: 768px){
+  #seatCont{ flex-direction: column !important; }
+  #seatCont .row{ flex-direction: row !important; flex-wrap: nowrap !important; }
+}
+
+/* Sensible responsive sizing so seats don't wrap on desktop */
+#seatCont .row .seat{
+  width: clamp(28px, 3.2vw, 38px);
+  height: clamp(28px, 3.2vw, 38px);
+}
+
+
+/* ===== Hall layout v2 (desktop & mobile) ===== */
+/* Center the hall and cap its width so seats never stretch across the viewport */
+.leftMainCont .mainSeatCont{
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 12px 8px;
+}
+
+/* Seat container = vertical stack of horizontal rows */
+#seatCont{
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100%;
+}
+
+/* Each row = seats left→right, kept together (no huge spacing) */
+#seatCont .row{
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;     /* kill space-between */
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
+  width: max-content;                      /* rows size to content, not full width */
+}
+
+/* Seats: fixed box size via a CSS var tuned per breakpoint */
+#seatCont .row .seat{
+  flex: 0 0 auto !important;
+  width: var(--seat, 38px);
+  height: var(--seat, 38px);
+}
+
+/* Responsive seat size */
+@media (min-width: 1200px){ :root{ --seat: 42px; } }
+@media (min-width: 768px) and (max-width: 1199px){ :root{ --seat: 38px; } }
+@media (max-width: 767px){ :root{ --seat: 34px; } }
+
+/* Row-band label on the LEFT; hide on small screens */
+#seatCont .row::before{
+  content: attr(data-band-label);
+  width: 9ch;
+  text-align: right;
+  margin-right: 12px;
+  color: rgba(255,255,255,.60);
+  font-size: .9rem;
+  letter-spacing: .2px;
+}
+@media (max-width: 600px){
+  #seatCont .row::before{ display: none; }
+}
+
+
+
+
 .container .mainSeatCont {
   background-color: aliceblue;
   height: 100%;
@@ -432,18 +544,15 @@ body {
   font-size: 14px;
 }
 
-.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat::after {
-  content: '×';
-  position: absolute;
-  right: 6px;
-  top: 2px;
+.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat .closeBtn {
+  margin-left: 6px;
   font-weight: 700;
   font-size: 12px;
   line-height: 1;
   opacity: 0.6;
 }
 
-.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat:hover::after {
+.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat:hover .closeBtn {
   opacity: 0.9;
 }
 
@@ -622,6 +731,43 @@ body.modal-active .overlay {
 }
 
 /* Desktop */
+
+/* --- Summary card --- */
+#checkoutSummary.summary-card{
+  margin-top:10px; padding:12px 14px; border-radius:12px;
+  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+#checkoutSummary .summary-line{
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:0.95rem; margin:6px 0;
+}
+#checkoutSummary .summary-divider{
+  height:1px; background: rgba(0,0,0,.08); margin:8px 0;
+}
+#checkoutSummary .summary-total{
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:1.15rem;
+}
+#checkoutSummary .summary-total strong{ font-size:1.25rem; }
+#checkoutSummary .summary-sub{
+  margin-top:6px; font-size:0.85rem; opacity:.8;
+}
+
+/* De-emphasize duplicate big labels if they exist */
+#movieName, #moviePrice { opacity:.65; font-weight:500; }
+
+/* Overlays off by default; only show when .is-open is present */
+.modal, .overlay, .backdrop { display: none; }
+.modal.is-open, .overlay.is-open, .backdrop.is-open { display: flex; }
+/* Seat grid must accept clicks */
+#seatCont { pointer-events:auto; position:relative; z-index:1; }
+/* Legends don’t eat clicks across the hall */
+.legendContainer { pointer-events:none; }
+.legendContainer * { pointer-events:auto; }
+
+/* --- Hide explicit time UI; we infer "now" in JS --- */
+#showtime[hidden] { display: none !important; }
+#dateHuman { display: none !important; } /* if a previous patch added a mirror line */
 
 @media (min-width: 800px) {
   .container {
@@ -878,4 +1024,373 @@ body[data-theme="light"] .successModal .modalCenter h1 {
 
 body[data-theme="light"] .successModal .modalCenter p {
   color: #686868;
+}
+#seatCont .row.zone-recliner .seat.selected{ transform: scale(1.06); }
+
+.screen, .screenBar, .screen-label{ max-width:780px; margin:6px auto; }
+
+.legendContainer{ max-width:920px; margin: 0 auto 8px; }
+.legendContainer ul{ gap:14px; }
+.legendContainer small{ opacity:.8; }
+#seatCont .row.zone-recliner .seat.selected{ transform: scale(1.06); }
+
+.screen, .screenBar, .screen-label{ max-width:780px; margin:6px auto; }
+
+.legendContainer{ max-width:920px; margin: 0 auto 8px; }
+.legendContainer ul{ gap:14px; }
+.legendContainer small{ opacity:.8; }
+
+/* ===================== Seat Icon v3 ===================== */
+/* Theme tokens */
+:root{
+  --seat: 38px;
+  --seat-bg: #ffffff;
+  --seat-border: #e5e7eb;       /* slate-200 */
+  --seat-label: #0f172a;        /* slate-900 */
+  --seat-muted: #6b7280;        /* slate-500 */
+  --seat-disabled: #f3f4f6;     /* slate-100 */
+  --ring: #3b82f6;              /* blue-500 */
+  --accent: #22c55e;            /* green-500 */
+  --accent-600: #16a34a;
+  --shadow-1: 0 1px 1px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.08);
+  --shadow-2: 0 6px 18px rgba(34,197,94,.28);
+}
+[data-theme="dark"]{
+  --seat-bg: #0b1220;           /* deep slate */
+  --seat-border: rgba(255,255,255,.12);
+  --seat-label: #e5e7eb;
+  --seat-muted: #94a3b8;
+  --seat-disabled: #0f172a;
+  --ring: #93c5fd;              /* blue-300 */
+}
+
+/* Layout invariants (keep rows horizontal, centered) */
+#seatCont{
+  display:flex !important; flex-direction:column !important; align-items:center !important;
+  gap:12px !important; width:100%;
+  grid-auto-flow: row !important; grid-template-columns:none !important; grid-template-rows:none !important;
+}
+#seatCont .row{
+  position:relative;
+  display:flex !important; flex-direction:row !important; flex-wrap:nowrap !important;
+  justify-content:center !important; align-items:center !important; gap:10px !important;
+  width:max-content;
+}
+
+/* Move zone tint to the ROW (behind seats) so seats stay crisp */
+#seatCont .row::after{
+  content:""; position:absolute; z-index:0;
+  left:-12px; right:-12px; top:calc(50% - (var(--seat)/2) - 6px);
+  height:calc(var(--seat) + 12px); border-radius:14px;
+  background: var(--row-tint, transparent);
+}
+#seatCont .row.zone-front    { --row-tint: rgba(59,130,246,.06); }
+#seatCont .row.zone-standard { --row-tint: transparent; }
+#seatCont .row.zone-premium  { --row-tint: rgba(255,215,0,.10); }
+#seatCont .row.zone-recliner { --row-tint: rgba(255,99,71,.12); }
+
+/* Kill any old seat overlays/pseudo-elements that caused the "overlap" look */
+#seatCont .row .seat::before,
+#seatCont .row .seat::after{ content:none !important; background:none !important; box-shadow:none !important; }
+
+/* Seat: clean tile with micro-shadow */
+#seatCont .row .seat{
+  position:relative; z-index:1;
+  display:grid; place-items:center;
+  width:var(--seat); height:var(--seat);
+  border-radius:12px;
+  background: var(--seat-bg) !important;
+  border:1px solid var(--seat-border) !important;
+  box-shadow: var(--shadow-1) !important;
+  color: var(--seat-label);
+  font: 600 0.92rem/1.1 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+  letter-spacing:.2px;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease, color .12s ease;
+  user-select:none;
+}
+#seatCont .row .seat:hover{ transform: translateY(-1px); border-color: var(--accent); }
+#seatCont .row .seat:focus-visible{
+  outline:3px solid var(--ring); outline-offset:2px;
+}
+
+/* Selected / Occupied */
+#seatCont .row .seat.selected{
+  background: var(--accent) !important; color:#fff !important;
+  border-color: var(--accent-600) !important; box-shadow: var(--shadow-2) !important;
+}
+#seatCont .row .seat.occupied{
+  background: var(--seat-disabled) !important; color: var(--seat-muted) !important;
+  border-color: var(--seat-border) !important; cursor:not-allowed; filter: grayscale(.2) saturate(.7);
+}
+
+/* Make legend chips match the real seats */
+.legendContainer .seat.legend{
+  width:18px; height:18px; border-radius:6px;
+  background: var(--seat-bg); border:1px solid var(--seat-border); box-shadow: var(--shadow-1);
+}
+.legendContainer .seat.legend.selected{ background: var(--accent); border-color: var(--accent-600); }
+.legendContainer .seat.legend.occupied{ background: var(--seat-disabled); }
+.legendContainer .seat.legend.recliner{ background: rgba(255,99,71,.22); border-color: rgba(255,99,71,.35); }
+
+/* Keep rows compact on huge screens */
+.leftMainCont .mainSeatCont{ max-width:920px; margin:0 auto; }
+@media (min-width:1200px){ :root{ --seat:42px; } }
+@media (max-width:767px){ :root{ --seat:34px; } }
+
+/* Ensure earlier zone rules (overlaying seats) are neutralized */
+#seatCont .row.zone-front .seat,
+#seatCont .row.zone-standard .seat,
+#seatCont .row.zone-premium .seat,
+#seatCont .row.zone-recliner .seat{
+  background: var(--seat-bg) !important;
+  box-shadow: var(--shadow-1) !important;
+}
+.screen, .screenBar, .screen-label{ max-width:780px; margin:6px auto; }
+
+.legendContainer{ max-width:920px; margin: 0 auto 8px; }
+.legendContainer ul{ gap:14px; }
+.legendContainer small{ opacity:.8; }
+
+/* ===================== Seat Icon v4 & Legend ===================== */
+:root{
+  --seat: 38px;
+  --seat-bg: #ffffff;
+  --seat-border: #e5e7eb;      /* slate-200 */
+  --seat-label: #0f172a;       /* slate-900 */
+  --seat-muted: #6b7280;       /* slate-500 */
+  --seat-disabled: #f3f4f6;    /* slate-100 */
+  --ring: #3b82f6;             /* blue-500 */
+  --accent: #22c55e;           /* green-500 */
+  --accent-600: #16a34a;
+  --shadow-1: 0 1px 1px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.08);
+  --shadow-2: 0 6px 18px rgba(34,197,94,.28);
+  --frost: rgba(255,255,255,.55);
+  --frost-bd: rgba(15,23,42,.06);
+}
+[data-theme="dark"]{
+  --seat-bg: #0b1220;
+  --seat-border: rgba(255,255,255,.12);
+  --seat-label: #e5e7eb;
+  --seat-muted: #94a3b8;
+  --seat-disabled: #0f172a;
+  --ring: #93c5fd;
+  --frost: rgba(2,6,23,.5);
+  --frost-bd: rgba(148,163,184,.14);
+}
+
+/* Keep rows horizontal, centered (guard) */
+#seatCont{ display:flex !important; flex-direction:column !important; align-items:center !重要; gap:12px !important; }
+#seatCont .row{ display:flex !重要; flex-direction:row !重要; flex-wrap:nowrap !重要; justify-content:center !重要; gap:10px !重要; width:max-content; position:relative; }
+
+/* Row tint lives BEHIND seats (no overlap on the seat tile) */
+#seatCont .row::after{
+  content:""; position:absolute; z-index:0; left:-12px; right:-12px;
+  top:calc(50% - (var(--seat)/2) - 6px); height:calc(var(--seat) + 12px);
+  border-radius:14px; background: var(--row-tint, transparent);
+}
+#seatCont .row.zone-front    { --row-tint: rgba(59,130,246,.06); }
+#seatCont .row.zone-standard { --row-tint: transparent; }
+#seatCont .row.zone-premium  { --row-tint: rgba(255,215,0,.10); }
+#seatCont .row.zone-recliner { --row-tint: rgba(255,99,71,.12); }
+
+/* Clean tile seat; strip any old pseudo overlays */
+#seatCont .row .seat::before, #seatCont .row .seat::after{ content:none !重要; }
+#seatCont .row .seat{
+  position:relative; z-index:1; display:grid; place-items:center;
+  width:var(--seat); height:var(--seat); border-radius:12px;
+  background: var(--seat-bg) !重要; border:1px solid var(--seat-border) !重要;
+  box-shadow: var(--shadow-1) !重要;
+  color: var(--seat-label); font:600 .92rem/1.1 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto;
+  letter-spacing:.2px; user-select:none;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease, color .12s ease;
+}
+#seatCont .row .seat:hover{ transform: translateY(-1px); border-color: var(--accent); }
+#seatCont .row .seat:active{ transform: translateY(0); }
+#seatCont .row .seat:focus-visible{ outline:3px solid var(--ring); outline-offset:2px; }
+
+#seatCont .row .seat.selected,
+#seatCont .row.zone-front .seat.selected,
+#seatCont .row.zone-standard .seat.selected,
+#seatCont .row.zone-premium .seat.selected,
+#seatCont .row.zone-recliner .seat.selected{
+  background: var(--accent) !重要; color:#fff !重要;
+  border-color: var(--accent-600) !重要; box-shadow: var(--shadow-2) !重要;
+}
+#seatCont .row .seat.occupied{
+  background: var(--seat-disabled) !重要; color: var(--seat-muted) !重要;
+  border-color: var(--seat-border) !重要; cursor:not-allowed; filter: grayscale(.2) saturate(.7);
+}
+
+/* Subtle row emphasis on hover (nice but not loud) */
+#seatCont .row:hover::after{ filter: brightness(1.02) saturate(1.02); }
+
+/* Legend: frosted pills with colored dots */
+.legendContainer{
+  position:sticky; top:8px; z-index:20;
+  background: var(--frost); backdrop-filter: blur(8px);
+  border:1px solid var(--frost-bd); border-radius:14px;
+  padding:8px 10px; margin-bottom:10px;
+  display:flex; justify-content:center;
+}
+.legendContainer ul{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:0; padding:0; list-style:none; }
+.legendContainer li{
+  display:flex; align-items:center; gap:8px;
+  padding:6px 10px; border-radius:999px;
+  background: rgba(255,255,255,.45); border:1px solid var(--frost-bd);
+}
+[data-theme="dark"] .legendContainer li{ background: rgba(15,23,42,.35); }
+.legendContainer li small{ font-weight:600; letter-spacing:.2px; opacity:.9; }
+.legendContainer .seat.legend{
+  width:12px; height:12px; border-radius:999px;
+  border:1px solid var(--seat-border); box-shadow: 0 0 0 2px rgba(0,0,0,.02) inset;
+  background: linear-gradient(to bottom, rgba(255,255,255,.9), rgba(0,0,0,.02));
+}
+.legendContainer .seat.legend.selected{ background: radial-gradient(circle at 30% 30%, #fff, #fff 30%, var(--accent) 31%) !重要; border-color: var(--accent-600); }
+.legendContainer .seat.legend.occupied{ background: #cbd5e1; border-color:#94a3b8; }
+.legendContainer .seat.legend.recliner{ background: radial-gradient(circle at 30% 30%, #fff, #fff 30%, rgba(255,99,71,.9) 31%); border-color: rgba(255,99,71,.6); }
+
+@media (min-width:1200px){ :root{ --seat:42px; } }
+@media (max-width:767px){ :root{ --seat:34px; } }
+
+@media (prefers-reduced-motion: reduce){
+  #seatCont .row .seat{ transition: none; }
+}
+
+/* ===== Bullet-proof selected fill (wins all cascades) ===== */
+/* Some older rules keep background white on .selected.
+   These rules come LAST with high specificity and !important. */
+#seatCont .row .seat.selected,
+#seatCont .row.zone-front    .seat.selected,
+#seatCont .row.zone-standard .seat.selected,
+#seatCont .row.zone-premium  .seat.selected,
+#seatCont .row.zone-recliner .seat.selected{
+  background-color: var(--accent) !important;
+  background-image: none !important;
+  color: #fff !important;
+  border-color: var(--accent-600) !important;
+  box-shadow: var(--shadow-2) !important;
+  -webkit-text-fill-color: #fff; /* Safari */
+}
+#seatCont .row .seat.selected .seat-label,
+#seatCont .row .seat.selected *{
+  color: #fff !important;
+  fill: #fff !important;
+  stroke: rgba(255,255,255,.92) !important;
+}
+#seatCont .row .seat.selected:hover{
+  transform: translateY(-1px);
+  border-color: var(--accent-600) !important;
+}
+#seatCont .row .seat.selected{ background: var(--accent) !important; }
+
+/* ================= Royal Loungers: Crown identity ================= */
+/* Gold token (AMC-style) */
+:root{ --rl-gold: #f5c518; --rl-gold-600:#d4a90f; --rl-rose: #ffd9d1; }
+[data-theme="dark"]{ --rl-rose: rgba(255,99,71,.18); }
+
+/* ---------- Legend pill: unique look + crown mark ---------- */
+.legendContainer .seat.legend.recliner{
+  position: relative;
+  width: 18px; height: 18px; border-radius: 6px;
+  background: linear-gradient(135deg, var(--rl-rose), rgba(255,99,71,.28));
+  border: 1px solid rgba(255,99,71,.45);
+  box-shadow: inset 0 2px 8px rgba(255,99,71,.25);
+}
+.legendContainer .seat.legend.recliner::after{
+  content:""; position:absolute; inset:2px; background-repeat:no-repeat; background-position:center; background-size:12px 12px;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,.15));
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f5c518' d='M2 12h12l-1-6-3 3-2-5-2 5-3-3-1 6Zm0 2h12v1H2z'/%3E%3C/svg%3E");
+}
+.legendContainer .seat.legend.recliner + small{
+  font-weight:700; letter-spacing:.3px;
+}
+.legendContainer .seat.legend.recliner + small::before{
+  content:""; display:inline-block; width:14px; height:14px; margin-right:6px; vertical-align:-2px;
+  background-repeat:no-repeat; background-position:center; background-size:contain;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16'%3E%3Cpath fill='%23f5c518' d='M2 12h12l-1-6-3 3-2-5-2 5-3-3-1 6Z'/%3E%3C/svg%3E");
+}
+
+/* ---------- Seats in recliner rows: badge + subtle upscale ---------- */
+#seatCont .row.zone-recliner .seat::after{
+  content:""; position:absolute; top:-6px; right:-6px; width:16px; height:16px; z-index:2; pointer-events:none;
+  background-repeat:no-repeat; background-position:center; background-size:16px 16px;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.25));
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f5c518' d='M2 12h12l-1-6-3 3-2-5-2 5-3-3-1 6Z'/%3E%3C/svg%3E");
+}
+#seatCont .row.zone-recliner .seat{ transform: translateZ(0) scale(1.03); }
+#seatCont .row.zone-recliner .seat.selected::after{
+  filter: drop-shadow(0 0 2px rgba(0,0,0,.35));
+}
+
+/* ---------- Optional: row label also gets a crown ---------- */
+#seatCont .row.zone-recliner::before{
+  content: "Royal Loungers";
+}
+#seatCont .row.zone-recliner::before{
+  position: relative;
+  padding-left: 18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16'%3E%3Cpath fill='%23f5c518' d='M2 12h12l-1-6-3 3-2-5-2 5-3-3-1 6Z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 14px 14px;
+}
+.screen, .screenBar, .screen-label{
+  max-width: 780px; margin: 8px auto 14px;
+  background: linear-gradient(to right, rgba(0,0,0,.18), rgba(0,0,0,.28)) !important;
+  color: #e5e7eb !important; letter-spacing: .35em; border-radius: 10px;
+}
+[data-theme="light"] .screen, [data-theme="light"] .screenBar, [data-theme="light"] .screen-label{
+  background: linear-gradient(to right, rgba(0,0,0,.35), rgba(0,0,0,.55)) !important;
+  color: #f8fafc !important;
+}
+
+#proceedBtn{
+  position: relative;
+  transition: transform .12s ease, opacity .12s ease;
+}
+#proceedBtn[data-count]:not([data-count="0"])::after{
+  content: attr(data-count);
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  min-width: 26px; height: 22px; padding: 0 8px;
+  border-radius: 999px; display: grid; place-items: center;
+  background: #14532d; color: #fff; font-weight: 700; font-size: 12px;
+}
+[data-theme="light"] #proceedBtn[data-count]:not([data-count="0"])::after{
+  background: #16a34a;
+}
+#proceedBtn[disabled]{ opacity: .55; cursor: not-allowed; }
+#proceedBtn:not([disabled]):active{ transform: translateY(1px); }
+
+@keyframes seat-shake{
+  0%,100%{ transform: translateX(0); }
+  25%{ transform: translateX(-2px); }
+  50%{ transform: translateX(2px); }
+  75%{ transform: translateX(-1px); }
+}
+#seatCont .seat.shake{ animation: seat-shake .24s ease-in-out; }
+
+#seatCont .row .seat.selected{
+  background: var(--accent) !important; color:#fff !important;
+  border-color: var(--accent-600) !important;
+}
+
+.noSelected{ opacity:.7; font-style: italic; }
+
+/* === Light-mode readability for row labels & legend === */
+[data-theme="light"] #seatCont .row::before{
+  color: #334155 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.65);
+  font-weight: 700;
+  opacity: .95;
+}
+[data-theme="light"] #seatCont .row.zone-recliner::before{
+  color: #334155 !important;
+}
+[data-theme="light"] .legendContainer li small{
+  color: #334155 !important;
+  opacity: .95 !important;
+}
+[data-theme="light"] #seatCont .row .seat,
+[data-theme="light"] #seatCont .row .seat .seat-label{
+  color: #0f172a !important;
 }
