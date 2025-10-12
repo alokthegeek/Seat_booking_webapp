@@ -1,0 +1,1377 @@
+* {
+  padding: 0%;
+  margin: 0%;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+:root {
+  --stage-max: 760px;
+}
+
+.leftCont {
+  width: 100%;
+  background-color: aliceblue;
+}
+
+.leftMainCont {
+  width: 100%;
+}
+
+body {
+  background-color: #f1f1f1;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.container .legendContainer {
+  background-color: #f1f1f1;
+  display: flex;
+  padding: 1rem;
+  width: 100%;
+}
+
+.container .legendContainer ul {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  list-style: none;
+  max-width: 600px;
+  margin: 0 auto;
+  user-select: none;
+}
+
+.container .legendContainer ul li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container .legendContainer ul li small {
+  color: #bdbdbd;
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.container .leftMainCont .seat {
+  height: 36px;
+  width: 42px;
+  border: 1px solid #bdbdbd;
+  border-radius: 3px 3px 6px 6px;
+  margin: 12px;
+  margin-bottom: 0.9rem;
+  position: relative;
+  cursor: pointer;
+  background-color: #fff;
+  transition: 0.3s ease background-color;
+}
+
+/* Seat label displayed on each seat */
+.container .leftMainCont .seat::before {
+  content: attr(data-label);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  color: #333;
+  z-index: 1;
+  pointer-events: none;
+  font-weight: 600;
+}
+
+.container .leftMainCont .seat::after {
+  content: "";
+  height: 30px;
+  width: 28px;
+  border: 1px solid #bdbdbd;
+  position: absolute;
+  left: 50%;
+  top: 29%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border-radius: 3px 3px;
+  transition: 0.3s ease background-color;
+  z-index: 0;
+}
+
+.container .leftMainCont .seat:hover,
+.container .leftMainCont .seat:hover::after {
+  background-color: #e6e6e6;
+}
+
+.container .leftMainCont .seat {
+  transition: transform 0.12s ease, background-color 0.3s ease;
+}
+
+.container .leftMainCont .seat.selected {
+  transform: scale(1.04);
+}
+
+.container .legendContainer .seat {
+  cursor: default;
+  margin-bottom: 10px;
+}
+
+.container .legendContainer .seat:hover,
+.container .legendContainer .seat:hover::after {
+  background-color: #fff;
+}
+
+.container .leftMainCont .seat.occupied,
+.container .leftMainCont .seat.occupied::after {
+  background-color: lightgray;
+}
+
+.container .leftMainCont .seat.occupied {
+  cursor: not-allowed;
+}
+
+.container .leftMainCont .seat:focus-visible {
+  outline: 2px solid #5bd65b;
+  outline-offset: 2px;
+}
+
+.container .leftMainCont .seat.selected,
+.container .leftMainCont .seat.selected::after {
+  background-color: rgb(168, 245, 168);
+  border-color: rgba(0, 190, 0, 0.336);
+}
+
+
+
+
+
+/* ===== Seat layout invariants (desktop & mobile) ===== */
+#seatCont{
+  display: flex !important;
+  flex-direction: column !important;   /* rows stacked top->bottom */
+  align-items: center !important;
+  gap: 10px !important;
+}
+#seatCont .row{
+  display: flex !important;
+  flex-direction: row !important;      /* seats left->right */
+  flex-wrap: nowrap !important;        /* never wrap vertically */
+  gap: 10px !important;
+}
+#seatCont .row .seat{
+  flex: 0 0 auto !important;
+}
+/* Desktop media rules must NOT flip the direction */
+@media (min-width: 768px){
+  #seatCont{ flex-direction: column !important; }
+  #seatCont .row{ flex-direction: row !important; flex-wrap: nowrap !important; }
+}
+
+/* Sensible responsive sizing so seats don't wrap on desktop */
+#seatCont .row .seat{
+  width: clamp(28px, 3.2vw, 38px);
+  height: clamp(28px, 3.2vw, 38px);
+}
+
+/* Kill legacy grid-based column flow if present */
+#seatCont{
+  grid-auto-flow: row !important;
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+}
+#seatCont .row{
+  grid-auto-flow: column !important;
+  grid-template-columns: none !important;
+}
+/* Desktop media rules must NOT flip the direction */
+@media (min-width: 768px){
+  #seatCont{ flex-direction: column !important; }
+  #seatCont .row{ flex-direction: row !important; flex-wrap: nowrap !important; }
+}
+
+/* Sensible responsive sizing so seats don't wrap on desktop */
+#seatCont .row .seat{
+  width: clamp(28px, 3.2vw, 38px);
+  height: clamp(28px, 3.2vw, 38px);
+}
+
+
+/* ===== Hall layout v2 (desktop & mobile) ===== */
+/* Center the hall and cap its width so seats never stretch across the viewport */
+.leftMainCont .mainSeatCont{
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 12px 8px;
+}
+
+/* Seat container = vertical stack of horizontal rows */
+#seatCont{
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100%;
+}
+
+/* Each row = seats left→right, kept together (no huge spacing) */
+#seatCont .row{
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;     /* kill space-between */
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
+  width: max-content;                      /* rows size to content, not full width */
+}
+
+/* Seats: fixed box size via a CSS var tuned per breakpoint */
+#seatCont .row .seat{
+  flex: 0 0 auto !important;
+  width: var(--seat, 38px);
+  height: var(--seat, 38px);
+}
+
+/* Responsive seat size */
+@media (min-width: 1200px){ :root{ --seat: 42px; } }
+@media (min-width: 768px) and (max-width: 1199px){ :root{ --seat: 38px; } }
+@media (max-width: 767px){ :root{ --seat: 34px; } }
+
+/* Row-band label on the LEFT; hide on small screens */
+#seatCont .row::before{
+  content: attr(data-band-label);
+  width: 9ch;
+  text-align: right;
+  margin-right: 12px;
+  color: rgba(255,255,255,.60);
+  font-size: .9rem;
+  letter-spacing: .2px;
+}
+@media (max-width: 600px){
+  #seatCont .row::before{ display: none; }
+}
+
+
+
+
+.container .mainSeatCont {
+  background-color: aliceblue;
+  height: 100%;
+  padding: 3rem 1rem;
+  position: relative;
+  min-width: 100%;
+  overflow-x: auto;
+  margin: 0% auto;
+}
+
+.container .mainSeatCont .seatCont {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  /* center rows relative to full seat area */
+  margin: 0 auto;
+  /* align with centered SCREEN header */
+}
+
+.container .mainSeatCont .seatCont .seatRowCont {
+  display: flex;
+  /* group of consecutive columns */
+  flex-direction: row;
+  /* desktop: columns side‑by‑side */
+  align-items: flex-start;
+}
+
+/* Each logical column stacks seats vertically and centers them */
+.container .mainSeatCont .seatCont .row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container .mainSeatCont .seatCont .seatRowCont2 {
+  margin: 0 1.5rem;
+}
+
+.container .leftMainCont .screen {
+  height: 20px;
+  width: 70%;
+  background-color: #686868;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 10px 10px;
+  max-width: var(--stage-max);
+  user-select: none;
+  margin: 0 auto;
+}
+
+.container .leftMainCont .screen small {
+  color: #bdbdbd;
+  font-size: 12px;
+  letter-spacing: 0.35rem;
+}
+
+/* ----------------------
+   Mobile-first tweaks
+   ---------------------- */
+/* Base layout already stacks (no flex on .container by default).
+   Below 800px we optimize spacing, tap targets, and wrapping. */
+
+@media (max-width: 799px) {
+
+  /* Overall rhythm */
+  body {
+    font-size: 16px;
+  }
+
+  .container .legendContainer ul {
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+
+  .container .leftMainCont .screen {
+    width: 90%;
+    max-width: none;
+  }
+
+  .container .mainSeatCont {
+    padding: 1rem 0.5rem 0.75rem;
+    /* trim bottom gap under seats */
+    overflow-x: hidden;
+    /* we’ll stack seat blocks instead of scrolling horizontally */
+    height: auto;
+    /* avoid forcing extra space */
+  }
+
+  .container .mainSeatCont .seatCont {
+    flex-wrap: wrap;
+    /* stack the seat blocks */
+    gap: 0.75rem 0;
+    /* vertical rhythm between blocks */
+  }
+
+  .container .mainSeatCont .seatCont .seatRowCont {
+    width: 100%;
+    /* make each block full width */
+    justify-content: center;
+    flex-direction: column;
+    /* mobile: stack columns top-to-bottom */
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  /* On phones, each logical row should be a horizontal line of seats */
+  .container .mainSeatCont .seatCont .row {
+    flex-direction: row;
+  }
+
+  .container .mainSeatCont .seatCont .seatRowCont2 {
+    margin: 0;
+  }
+
+  /* Seat hit area stays comfortable on touch */
+  .container .leftMainCont .seat {
+    margin: 10px;
+    /* slightly tighter spacing */
+    height: 38px;
+    width: 44px;
+  }
+
+  .container .leftMainCont .seat::after {
+    height: 30px;
+    width: 28px;
+  }
+
+  /* Right/summary panel spacing */
+  .container .confirmCont {
+    padding: 1rem;
+  }
+
+  .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeatsHolder {
+    grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  }
+
+  .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat {
+    min-width: 84px;
+    max-width: 100%;
+    padding: 0.45rem 1.4rem;
+  }
+
+  .container .confirmCont .rightBottomCont .buttonCont {
+    gap: 0.75rem;
+  }
+
+  .container .confirmCont .rightBottomCont .buttonCont button {
+    width: 100%;
+    padding: 0.9rem 0.75rem;
+  }
+}
+
+/* Compact phones */
+@media (max-width: 380px) {
+  .container .leftMainCont .seat {
+    margin: 8px;
+    height: 34px;
+    width: 40px;
+  }
+
+  .container .leftMainCont .seat::before {
+    font-size: 11px;
+  }
+
+  .container .leftMainCont .screen small {
+    letter-spacing: 0.2rem;
+  }
+
+  .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeatsHolder {
+    grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+  }
+
+  .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat {
+    min-width: 76px;
+    padding: 0.4rem 1.1rem;
+  }
+}
+
+/*  */
+.container .confirmCont {
+  background-color: #f1f1f1;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+}
+
+.container .confirmCont .rightTopCont {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  border-bottom: 1px solid #c4c4c4;
+}
+
+.container .confirmCont .movieInfo div {
+  margin-bottom: 0.8rem;
+}
+
+.container .confirmCont .movieInfo p {
+  color: #bdbdbd;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 14px;
+  margin-bottom: 0.25rem;
+}
+
+.container .confirmCont .movieInfo .date,
+.container .confirmCont .movieInfo .dateOn {
+  color: #414141;
+  font-size: 16px;
+  margin-top: 0.5rem;
+}
+
+.container .confirmCont .selectMovie select {
+  padding: 0.55rem 0.9rem;
+  border: 1px solid #c4c4c4;
+  outline: none;
+  border-radius: 3px;
+  color: #686868;
+  font-family: inherit;
+  margin-top: 0.4rem;
+  font-size: 1rem;
+  background-color: transparent;
+}
+
+.container .confirmCont .movieInfo h1 {
+  color: #414141;
+  margin-top: 0.2rem;
+}
+
+/* Theme toggle */
+.themeToggle label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+}
+
+.themeToggle input {
+  accent-color: lightgreen;
+}
+
+.themeToggle span {
+  color: #414141;
+  font-size: 1rem;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont {
+  border-bottom: 1px solid #c4c4c4;
+  padding: 1rem 0;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont p {
+  font-size: 12px;
+  color: #bdbdbd;
+}
+
+.container .rightBottomCont .noSelected {
+  text-align: center;
+  color: crimson;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  color: #bdbdbd;
+  text-transform: uppercase;
+  width: 200px;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat {
+  border: 1px solid lightgreen;
+  color: lightgreen;
+  padding: 0.5rem 2.1rem;
+  border-radius: 3px;
+  user-select: none;
+  min-width: 92px;
+  max-width: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  float: left;
+  position: relative;
+  font-size: 14px;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat .closeBtn {
+  margin-left: 6px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat:hover .closeBtn {
+  opacity: 0.9;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat:hover {
+  background-color: rgba(144, 238, 144, 0.151);
+  transition: 0.3s ease background-color;
+}
+
+.container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeatsHolder {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 92px));
+  grid-column-gap: 1rem;
+  grid-row-gap: 0.75rem;
+  margin-top: 0.9rem;
+  grid-auto-columns: auto;
+  position: relative;
+}
+
+.container .confirmCont .rightBottomCont .numberOfSeatsCont {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  user-select: none;
+}
+
+.container .confirmCont .rightBottomCont .numberOfSeatsCont .numberOfSeatEl p {
+  color: #414141;
+  font-size: 16px;
+}
+
+.container .confirmCont .rightBottomCont .numberOfSeatsCont .priceCont {
+  color: crimson;
+  font-size: 16px;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont button {
+  padding: 1rem 2.2rem;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont .cancelBtn button {
+  background-color: crimson;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont .cancelBtn button:hover {
+  background-color: rgb(204, 0, 41);
+  transition: 0.3s ease background-color;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont .proceedBtnEl button {
+  background-color: lightgreen;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+  transition: 0.3s ease background-color;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont .proceedBtnEl button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.container .confirmCont .rightBottomCont .buttonCont .proceedBtnEl button:hover {
+  background-color: rgba(84, 216, 84, 0.808);
+}
+
+/* Success Modal */
+body.modal-active {
+  overflow: hidden;
+  padding-right: 17px;
+}
+
+.overlay {
+  position: fixed;
+  height: 100vh;
+  width: 100%;
+  background-color: #000;
+  top: 0%;
+  left: 0%;
+  opacity: 0.3;
+  display: none;
+}
+
+body.modal-active .overlay {
+  display: block;
+}
+
+.successModal {
+  width: 80%;
+  max-width: 450px;
+  background-color: #fff;
+  position: fixed;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 0.4rem;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  padding: 1rem;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background-image: url(https://github.com/Dinesh1042/Vanilla-JavaScript-Projects/blob/main/Movie%20Booking/asset/c1.png?raw=true);
+  background-size: 140%;
+  background-position: top center;
+  user-select: none;
+  z-index: 11;
+  animation: 1s ease modalAnimation;
+}
+
+@keyframes modalAnimation {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 12px)) scale(0.98);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.successModal .modalTop {
+  padding: 1rem;
+}
+
+.successModal .modalTop img {
+  width: 100px;
+}
+
+.successModal .modalCenter {
+  padding: 0.5rem 2.5rem;
+}
+
+.successModal .modalCenter h1 {
+  color: #414141;
+}
+
+.successModal .modalCenter p {
+  color: #686868;
+  margin-top: 0.5rem;
+}
+
+.successModal .modalBottom {
+  margin-top: 1rem;
+}
+
+.successModal .modalBottom button {
+  background-color: lightgreen;
+  border: none;
+  outline: none;
+  padding: 0.75rem 1.3rem;
+  border-radius: 0.2rem;
+  cursor: pointer;
+  color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+  transition: 0.3s ease background-color;
+}
+
+.successModal .modalBottom button:hover {
+  background-color: rgba(84, 216, 84, 0.808);
+}
+
+/* Desktop */
+
+/* --- Summary card --- */
+#checkoutSummary.summary-card{
+  margin-top:10px; padding:12px 14px; border-radius:12px;
+  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+#checkoutSummary .summary-line{
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:0.95rem; margin:6px 0;
+}
+#checkoutSummary .summary-divider{
+  height:1px; background: rgba(0,0,0,.08); margin:8px 0;
+}
+#checkoutSummary .summary-total{
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:1.15rem;
+}
+#checkoutSummary .summary-total strong{ font-size:1.25rem; }
+#checkoutSummary .summary-sub{
+  margin-top:6px; font-size:0.85rem; opacity:.8;
+}
+
+/* De-emphasize duplicate big labels if they exist */
+#movieName, #moviePrice { opacity:.65; font-weight:500; }
+
+/* Overlays off by default; only show when .is-open is present */
+.modal, .overlay, .backdrop { display: none; }
+.modal.is-open, .overlay.is-open, .backdrop.is-open { display: flex; }
+/* Seat grid must accept clicks */
+#seatCont { pointer-events:auto; position:relative; z-index:1; }
+/* Legends don’t eat clicks across the hall */
+.legendContainer { pointer-events:none; }
+.legendContainer * { pointer-events:auto; }
+
+/* --- Hide explicit time UI; we infer "now" in JS --- */
+#showtime[hidden] { display: none !important; }
+#dateHuman { display: none !important; } /* if a previous patch added a mirror line */
+
+@media (min-width: 800px) {
+  .container {
+    display: flex;
+  }
+
+  /* Clamp the seat grid to the same width as the SCREEN bar */
+  .container .mainSeatCont .seatCont {
+    max-width: var(--stage-max);
+    margin: 0 auto;
+    justify-content: center;
+    /* center the three blocks horizontally */
+    align-items: flex-start;
+    /* align blocks to the top under SCREEN */
+    flex-wrap: nowrap;
+    gap: 0;
+    /* keep aisle solely via seatRowCont2 */
+  }
+
+  .container .confirmCont {
+    min-width: 300px;
+    max-width: 300px;
+    float: right;
+    padding: 2rem;
+    min-height: 100vh;
+  }
+
+  .container .legendContainer {
+    justify-content: start;
+    align-items: flex-start;
+  }
+
+  .container .legendContainer ul {
+    margin: unset;
+  }
+
+  .container .confirmCont .rightBottomCont .buttonCont {
+    flex-direction: column-reverse;
+  }
+
+  .container .confirmCont .rightBottomCont .buttonCont button {
+    width: 100%;
+    padding: 0.8rem 0.75rem;
+    margin-bottom: 0.8rem;
+  }
+}
+
+/* Manual color-scheme tied to toggle */
+body[data-theme="light"] {
+  color-scheme: light;
+}
+
+body[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Manual Dark Mode only via data-theme attribute */
+
+/* Manual theme overrides */
+body[data-theme="dark"] {
+  background-color: #121212;
+}
+
+body[data-theme="dark"] .leftCont {
+  background-color: #161b22;
+}
+
+body[data-theme="dark"] .container .legendContainer {
+  background-color: #121212;
+}
+
+body[data-theme="dark"] .container .mainSeatCont {
+  background-color: #0f141a;
+}
+
+body[data-theme="dark"] .container .confirmCont {
+  background-color: #121212;
+}
+
+body[data-theme="dark"] .container .legendContainer ul li small,
+body[data-theme="dark"] .container .confirmCont .movieInfo p,
+body[data-theme="dark"] .container .rightBottomCont .noSelected {
+  color: #9aa0a6;
+}
+
+body[data-theme="dark"] .container .confirmCont .movieInfo h1,
+body[data-theme="dark"] .container .confirmCont .movieInfo .date,
+body[data-theme="dark"] .container .confirmCont .movieInfo .dateOn,
+body[data-theme="dark"] .container .confirmCont .rightBottomCont .numberOfSeatsCont .numberOfSeatEl p {
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .themeToggle span {
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat {
+  background-color: #1f2a36;
+  border-color: #3b4a59;
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat::after {
+  background-color: #1b2430;
+  border-color: #3b4a59;
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat::before {
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat:hover,
+body[data-theme="dark"] .container .leftMainCont .seat:hover::after {
+  background-color: #273444;
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat.occupied,
+body[data-theme="dark"] .container .leftMainCont .seat.occupied::after {
+  background-color: #3a3a3a;
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat.selected,
+body[data-theme="dark"] .container .leftMainCont .seat.selected::after {
+  background-color: #1f4d1f;
+  border-color: rgba(0, 190, 0, 0.336);
+}
+
+body[data-theme="dark"] .container .leftMainCont .seat.selected::before {
+  color: #b7ffb7;
+}
+
+body[data-theme="dark"] .container .leftMainCont .screen {
+  background-color: #586069;
+}
+
+body[data-theme="dark"] .container .leftMainCont .screen small {
+  color: #9aa0a6;
+}
+
+body[data-theme="dark"] .container .confirmCont .rightBottomCont .selectedSeatCont {
+  border-color: #2b2b2b;
+}
+
+body[data-theme="dark"] .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat {
+  border-color: #5bd65b;
+  color: #b7ffb7;
+}
+
+body[data-theme="dark"] .successModal {
+  background-color: #1e1e1e;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 2px 12px 0px;
+  background-image: none;
+}
+
+body[data-theme="dark"] .successModal .modalCenter h1 {
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .successModal .modalCenter p {
+  color: #bdbdbd;
+}
+
+/* Force-light overrides to beat OS-dark */
+body[data-theme="light"] {
+  background-color: #f1f1f1;
+}
+
+body[data-theme="light"] .leftCont {
+  background-color: aliceblue;
+}
+
+body[data-theme="light"] .container .legendContainer {
+  background-color: #f1f1f1;
+}
+
+body[data-theme="light"] .container .mainSeatCont {
+  background-color: aliceblue;
+}
+
+body[data-theme="light"] .container .confirmCont {
+  background-color: #f1f1f1;
+}
+
+body[data-theme="light"] .container .legendContainer ul li small,
+body[data-theme="light"] .container .confirmCont .movieInfo p {
+  color: #bdbdbd;
+}
+
+body[data-theme="light"] .container .confirmCont .movieInfo h1,
+body[data-theme="light"] .container .confirmCont .movieInfo .date,
+body[data-theme="light"] .container .confirmCont .movieInfo .dateOn,
+body[data-theme="light"] .container .confirmCont .rightBottomCont .numberOfSeatsCont .numberOfSeatEl p {
+  color: #414141;
+}
+
+body[data-theme="light"] .themeToggle span {
+  color: #414141;
+}
+
+body[data-theme="light"] .container .leftMainCont .seat {
+  background-color: #fff;
+  border-color: #bdbdbd;
+}
+
+body[data-theme="light"] .container .leftMainCont .seat::after {
+  background-color: #fff;
+  border-color: #bdbdbd;
+}
+
+body[data-theme="light"] .container .leftMainCont .seat::before {
+  color: #333;
+}
+
+body[data-theme="light"] .container .leftMainCont .seat:hover,
+body[data-theme="light"] .container .leftMainCont .seat:hover::after {
+  background-color: #e6e6e6;
+}
+
+body[data-theme="light"] .container .leftMainCont .seat.occupied,
+body[data-theme="light"] .container .leftMainCont .seat.occupied::after {
+  background-color: lightgray;
+}
+
+body[data-theme="light"] .container .leftMainCont .seat.selected,
+body[data-theme="light"] .container .leftMainCont .seat.selected::after {
+  background-color: rgb(168, 245, 168);
+  border-color: rgba(0, 190, 0, 0.336);
+}
+
+body[data-theme="light"] .container .leftMainCont .screen {
+  background-color: #686868;
+}
+
+body[data-theme="light"] .container .leftMainCont .screen small {
+  color: #bdbdbd;
+}
+
+body[data-theme="light"] .container .confirmCont .rightBottomCont .selectedSeatCont {
+  border-color: #c4c4c4;
+}
+
+body[data-theme="light"] .container .confirmCont .rightBottomCont .selectedSeatCont .selectedSeat {
+  border-color: lightgreen;
+  color: lightgreen;
+}
+
+body[data-theme="light"] .successModal {
+  background-color: #fff;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+body[data-theme="light"] .successModal .modalCenter h1 {
+  color: #414141;
+}
+
+body[data-theme="light"] .successModal .modalCenter p {
+  color: #686868;
+}
+#seatCont .row.zone-recliner .seat.selected{ transform: scale(1.06); }
+
+.screen, .screenBar, .screen-label{ max-width:780px; margin:6px auto; }
+
+.legendContainer{ max-width:920px; margin: 0 auto 8px; }
+.legendContainer ul{ gap:14px; }
+.legendContainer small{ opacity:.8; }
+#seatCont .row.zone-recliner .seat.selected{ transform: scale(1.06); }
+
+.screen, .screenBar, .screen-label{ max-width:780px; margin:6px auto; }
+
+.legendContainer{ max-width:920px; margin: 0 auto 8px; }
+.legendContainer ul{ gap:14px; }
+.legendContainer small{ opacity:.8; }
+
+/* ===================== Seat Icon v3 ===================== */
+/* Theme tokens */
+:root{
+  --seat: 38px;
+  --seat-bg: #ffffff;
+  --seat-border: #e5e7eb;       /* slate-200 */
+  --seat-label: #0f172a;        /* slate-900 */
+  --seat-muted: #6b7280;        /* slate-500 */
+  --seat-disabled: #f3f4f6;     /* slate-100 */
+  --ring: #3b82f6;              /* blue-500 */
+  --accent: #22c55e;            /* green-500 */
+  --accent-600: #16a34a;
+  --shadow-1: 0 1px 1px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.08);
+  --shadow-2: 0 6px 18px rgba(34,197,94,.28);
+}
+[data-theme="dark"]{
+  --seat-bg: #0b1220;           /* deep slate */
+  --seat-border: rgba(255,255,255,.12);
+  --seat-label: #e5e7eb;
+  --seat-muted: #94a3b8;
+  --seat-disabled: #0f172a;
+  --ring: #93c5fd;              /* blue-300 */
+}
+
+/* Layout invariants (keep rows horizontal, centered) */
+#seatCont{
+  display:flex !important; flex-direction:column !important; align-items:center !important;
+  gap:12px !important; width:100%;
+  grid-auto-flow: row !important; grid-template-columns:none !important; grid-template-rows:none !important;
+}
+#seatCont .row{
+  position:relative;
+  display:flex !important; flex-direction:row !important; flex-wrap:nowrap !important;
+  justify-content:center !important; align-items:center !important; gap:10px !important;
+  width:max-content;
+}
+
+/* Move zone tint to the ROW (behind seats) so seats stay crisp */
+#seatCont .row::after{
+  content:""; position:absolute; z-index:0;
+  left:-12px; right:-12px; top:calc(50% - (var(--seat)/2) - 6px);
+  height:calc(var(--seat) + 12px); border-radius:14px;
+  background: var(--row-tint, transparent);
+}
+#seatCont .row.zone-front    { --row-tint: rgba(59,130,246,.06); }
+#seatCont .row.zone-standard { --row-tint: transparent; }
+#seatCont .row.zone-premium  { --row-tint: rgba(255,215,0,.10); }
+#seatCont .row.zone-recliner { --row-tint: rgba(255,99,71,.12); }
+
+/* Kill any old seat overlays/pseudo-elements that caused the "overlap" look */
+#seatCont .row .seat::before,
+#seatCont .row .seat::after{ content:none !important; background:none !important; box-shadow:none !important; }
+
+/* Seat: clean tile with micro-shadow */
+#seatCont .row .seat{
+  position:relative; z-index:1;
+  display:grid; place-items:center;
+  width:var(--seat); height:var(--seat);
+  border-radius:12px;
+  background: var(--seat-bg) !important;
+  border:1px solid var(--seat-border) !important;
+  box-shadow: var(--shadow-1) !important;
+  color: var(--seat-label);
+  font: 600 0.92rem/1.1 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+  letter-spacing:.2px;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease, color .12s ease;
+  user-select:none;
+}
+#seatCont .row .seat:hover{ transform: translateY(-1px); border-color: var(--accent); }
+#seatCont .row .seat:focus-visible{
+  outline:3px solid var(--ring); outline-offset:2px;
+}
+
+/* Selected / Occupied */
+#seatCont .row .seat.selected{
+  background: var(--accent) !important; color:#fff !important;
+  border-color: var(--accent-600) !important; box-shadow: var(--shadow-2) !important;
+}
+#seatCont .row .seat.occupied{
+  background: var(--seat-disabled) !important; color: var(--seat-muted) !important;
+  border-color: var(--seat-border) !important; cursor:not-allowed; filter: grayscale(.2) saturate(.7);
+}
+
+/* Make legend chips match the real seats */
+.legendContainer .seat.legend{
+  width:18px; height:18px; border-radius:6px;
+  background: var(--seat-bg); border:1px solid var(--seat-border); box-shadow: var(--shadow-1);
+}
+.legendContainer .seat.legend.selected{ background: var(--accent); border-color: var(--accent-600); }
+.legendContainer .seat.legend.occupied{ background: var(--seat-disabled); }
+.legendContainer .seat.legend.recliner{ background: rgba(255,99,71,.22); border-color: rgba(255,99,71,.35); }
+
+/* Keep rows compact on huge screens */
+.leftMainCont .mainSeatCont{ max-width:920px; margin:0 auto; }
+@media (min-width:1200px){ :root{ --seat:42px; } }
+@media (max-width:767px){ :root{ --seat:34px; } }
+
+/* Ensure earlier zone rules (overlaying seats) are neutralized */
+#seatCont .row.zone-front .seat,
+#seatCont .row.zone-standard .seat,
+#seatCont .row.zone-premium .seat,
+#seatCont .row.zone-recliner .seat{
+  background: var(--seat-bg) !important;
+  box-shadow: var(--shadow-1) !important;
+}
+.screen, .screenBar, .screen-label{ max-width:780px; margin:6px auto; }
+
+.legendContainer{ max-width:920px; margin: 0 auto 8px; }
+.legendContainer ul{ gap:14px; }
+.legendContainer small{ opacity:.8; }
+
+/* ===================== Seat Icon v4 & Legend ===================== */
+:root{
+  --seat: 38px;
+  --seat-bg: #ffffff;
+  --seat-border: #e5e7eb;      /* slate-200 */
+  --seat-label: #0f172a;       /* slate-900 */
+  --seat-muted: #6b7280;       /* slate-500 */
+  --seat-disabled: #f3f4f6;    /* slate-100 */
+  --ring: #3b82f6;             /* blue-500 */
+  --accent: #22c55e;           /* green-500 */
+  --accent-600: #16a34a;
+  --shadow-1: 0 1px 1px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.08);
+  --shadow-2: 0 6px 18px rgba(34,197,94,.28);
+  --frost: rgba(255,255,255,.55);
+  --frost-bd: rgba(15,23,42,.06);
+}
+[data-theme="dark"]{
+  --seat-bg: #0b1220;
+  --seat-border: rgba(255,255,255,.12);
+  --seat-label: #e5e7eb;
+  --seat-muted: #94a3b8;
+  --seat-disabled: #0f172a;
+  --ring: #93c5fd;
+  --frost: rgba(2,6,23,.5);
+  --frost-bd: rgba(148,163,184,.14);
+}
+
+/* Keep rows horizontal, centered (guard) */
+#seatCont{ display:flex !important; flex-direction:column !important; align-items:center !重要; gap:12px !important; }
+#seatCont .row{ display:flex !重要; flex-direction:row !重要; flex-wrap:nowrap !重要; justify-content:center !重要; gap:10px !重要; width:max-content; position:relative; }
+
+/* Row tint lives BEHIND seats (no overlap on the seat tile) */
+#seatCont .row::after{
+  content:""; position:absolute; z-index:0; left:-12px; right:-12px;
+  top:calc(50% - (var(--seat)/2) - 6px); height:calc(var(--seat) + 12px);
+  border-radius:14px; background: var(--row-tint, transparent);
+}
+#seatCont .row.zone-front    { --row-tint: rgba(59,130,246,.06); }
+#seatCont .row.zone-standard { --row-tint: transparent; }
+#seatCont .row.zone-premium  { --row-tint: rgba(255,215,0,.10); }
+#seatCont .row.zone-recliner { --row-tint: rgba(255,99,71,.12); }
+
+/* Clean tile seat; strip any old pseudo overlays */
+#seatCont .row .seat::before, #seatCont .row .seat::after{ content:none !重要; }
+#seatCont .row .seat{
+  position:relative; z-index:1; display:grid; place-items:center;
+  width:var(--seat); height:var(--seat); border-radius:12px;
+  background: var(--seat-bg) !重要; border:1px solid var(--seat-border) !重要;
+  box-shadow: var(--shadow-1) !重要;
+  color: var(--seat-label); font:600 .92rem/1.1 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto;
+  letter-spacing:.2px; user-select:none;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease, color .12s ease;
+}
+#seatCont .row .seat:hover{ transform: translateY(-1px); border-color: var(--accent); }
+#seatCont .row .seat:active{ transform: translateY(0); }
+#seatCont .row .seat:focus-visible{ outline:3px solid var(--ring); outline-offset:2px; }
+
+#seatCont .row .seat.selected,
+#seatCont .row.zone-front .seat.selected,
+#seatCont .row.zone-standard .seat.selected,
+#seatCont .row.zone-premium .seat.selected,
+#seatCont .row.zone-recliner .seat.selected{
+  background: var(--accent) !重要; color:#fff !重要;
+  border-color: var(--accent-600) !重要; box-shadow: var(--shadow-2) !重要;
+}
+#seatCont .row .seat.occupied{
+  background: var(--seat-disabled) !重要; color: var(--seat-muted) !重要;
+  border-color: var(--seat-border) !重要; cursor:not-allowed; filter: grayscale(.2) saturate(.7);
+}
+
+/* Subtle row emphasis on hover (nice but not loud) */
+#seatCont .row:hover::after{ filter: brightness(1.02) saturate(1.02); }
+
+/* Legend: frosted pills with colored dots */
+.legendContainer{
+  position:sticky; top:8px; z-index:20;
+  background: var(--frost); backdrop-filter: blur(8px);
+  border:1px solid var(--frost-bd); border-radius:14px;
+  padding:8px 10px; margin-bottom:10px;
+  display:flex; justify-content:center;
+}
+.legendContainer ul{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:0; padding:0; list-style:none; }
+.legendContainer li{
+  display:flex; align-items:center; gap:8px;
+  padding:6px 10px; border-radius:999px;
+  background: rgba(255,255,255,.45); border:1px solid var(--frost-bd);
+}
+[data-theme="dark"] .legendContainer li{ background: rgba(15,23,42,.35); }
+.legendContainer li small{ font-weight:600; letter-spacing:.2px; opacity:.9; }
+.legendContainer .seat.legend{
+  width:12px; height:12px; border-radius:999px;
+  border:1px solid var(--seat-border); box-shadow: 0 0 0 2px rgba(0,0,0,.02) inset;
+  background: linear-gradient(to bottom, rgba(255,255,255,.9), rgba(0,0,0,.02));
+}
+.legendContainer .seat.legend.selected{ background: radial-gradient(circle at 30% 30%, #fff, #fff 30%, var(--accent) 31%) !重要; border-color: var(--accent-600); }
+.legendContainer .seat.legend.occupied{ background: #cbd5e1; border-color:#94a3b8; }
+.legendContainer .seat.legend.recliner{ background: radial-gradient(circle at 30% 30%, #fff, #fff 30%, rgba(255,99,71,.9) 31%); border-color: rgba(255,99,71,.6); }
+
+@media (min-width:1200px){ :root{ --seat:42px; } }
+@media (max-width:767px){ :root{ --seat:34px; } }
+
+@media (prefers-reduced-motion: reduce){
+  #seatCont .row .seat{ transition: none; }
+}
+
+/* ===== Bullet-proof selected fill (wins all cascades) ===== */
+/* Some older rules keep background white on .selected.
+   These rules come LAST with high specificity and !important. */
+#seatCont .row .seat.selected,
+#seatCont .row.zone-front    .seat.selected,
+#seatCont .row.zone-standard .seat.selected,
+#seatCont .row.zone-premium  .seat.selected,
+#seatCont .row.zone-recliner .seat.selected{
+  background-color: var(--accent) !important;
+  background-image: none !important;
+  color: #fff !important;
+  border-color: var(--accent-600) !important;
+  box-shadow: var(--shadow-2) !important;
+  -webkit-text-fill-color: #fff; /* Safari */
+}
+#seatCont .row .seat.selected .seat-label,
+#seatCont .row .seat.selected *{
+  color: #fff !important;
+  fill: #fff !important;
+  stroke: rgba(255,255,255,.92) !important;
+}
+#seatCont .row .seat.selected:hover{
+  transform: translateY(-1px);
+  border-color: var(--accent-600) !important;
+}
+#seatCont .row .seat.selected{ background: var(--accent) !important; }
+
+/* ================= Royal Loungers: Crown identity ================= */
+/* Gold token (AMC-style) */
+:root{ --rl-gold: #f5c518; --rl-gold-600:#d4a90f; --rl-rose: #ffd9d1; }
+[data-theme="dark"]{ --rl-rose: rgba(255,99,71,.18); }
+
+/* ---------- Legend pill: unique look + crown mark ---------- */
+.legendContainer .seat.legend.recliner{
+  position: relative;
+  width: 18px; height: 18px; border-radius: 6px;
+  background: linear-gradient(135deg, var(--rl-rose), rgba(255,99,71,.28));
+  border: 1px solid rgba(255,99,71,.45);
+  box-shadow: inset 0 2px 8px rgba(255,99,71,.25);
+}
+.legendContainer .seat.legend.recliner::after{
+  content:""; position:absolute; inset:2px; background-repeat:no-repeat; background-position:center; background-size:12px 12px;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,.15));
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f5c518' d='M2 12h12l-1-6-3 3-2-5-2 5-3-3-1 6Zm0 2h12v1H2z'/%3E%3C/svg%3E");
+}
+.legendContainer .seat.legend.recliner + small{
+  font-weight:700; letter-spacing:.3px;
+}
+.legendContainer .seat.legend.recliner + small::before{
+  content:""; display:inline-block; width:14px; height:14px; margin-right:6px; vertical-align:-2px;
+  background-repeat:no-repeat; background-position:center; background-size:contain;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16'%3E%3Cpath fill='%23f5c518' d='M2 12h12l-1-6-3 3-2-5-2 5-3-3-1 6Z'/%3E%3C/svg%3E");
+}
+
+/* ---------- Seats in recliner rows: badge + subtle upscale ---------- */
+#seatCont .row.zone-recliner .seat::after{
+  content:""; position:absolute; top:-6px; right:-6px; width:16px; height:16px; z-index:2; pointer-events:none;
+  background-repeat:no-repeat; background-position:center; background-size:16px 16px;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.25));
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23f5c518' d='M2 12h12l-1-6-3 3-2-5-2 5-3-3-1 6Z'/%3E%3C/svg%3E");
+}
+#seatCont .row.zone-recliner .seat{ transform: translateZ(0) scale(1.03); }
+#seatCont .row.zone-recliner .seat.selected::after{
+  filter: drop-shadow(0 0 2px rgba(0,0,0,.35));
+}
+
+/* ---------- Optional: row label also gets a crown ---------- */
+#seatCont .row.zone-recliner::before{
+  content: "Royal Loungers";
+}
+#seatCont .row.zone-recliner::before{
+  position: relative;
+  padding-left: 18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16'%3E%3Cpath fill='%23f5c518' d='M2 12h12l-1-6-3 3-2-5-2 5-3-3-1 6Z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 14px 14px;
+}
+.screen, .screenBar, .screen-label{
+  max-width: 780px; margin: 8px auto 14px;
+  background: linear-gradient(to right, rgba(0,0,0,.18), rgba(0,0,0,.28)) !important;
+  color: #e5e7eb !important; letter-spacing: .35em; border-radius: 10px;
+}
+[data-theme="light"] .screen, [data-theme="light"] .screenBar, [data-theme="light"] .screen-label{
+  background: linear-gradient(to right, rgba(0,0,0,.35), rgba(0,0,0,.55)) !important;
+  color: #f8fafc !important;
+}
+
+#proceedBtn{
+  position: relative;
+  transition: transform .12s ease, opacity .12s ease;
+}
+#proceedBtn[data-count]:not([data-count="0"])::after{
+  content: attr(data-count);
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  min-width: 26px; height: 22px; padding: 0 8px;
+  border-radius: 999px; display: grid; place-items: center;
+  background: #14532d; color: #fff; font-weight: 700; font-size: 12px;
+}
+[data-theme="light"] #proceedBtn[data-count]:not([data-count="0"])::after{
+  background: #16a34a;
+}
+#proceedBtn[disabled]{ opacity: .55; cursor: not-allowed; }
+#proceedBtn:not([disabled]):active{ transform: translateY(1px); }
+
+@keyframes seat-shake{
+  0%,100%{ transform: translateX(0); }
+  25%{ transform: translateX(-2px); }
+  50%{ transform: translateX(2px); }
+  75%{ transform: translateX(-1px); }
+}
+#seatCont .seat.shake{ animation: seat-shake .24s ease-in-out; }
+
+#seatCont .row .seat.selected{
+  background: var(--accent) !important; color:#fff !important;
+  border-color: var(--accent-600) !important;
+}
+
+.noSelected{ opacity:.7; font-style: italic; }
