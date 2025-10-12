@@ -1,0 +1,33 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>pricingEngine smoke tests</title>
+<script type="module">
+  import { pricingRules } from './pricingRules.js';
+  import { computePrice } from './pricingEngine.js';
+
+  const tests = [];
+  function test(name, fn) { tests.push({name, fn}); }
+
+  test("weekday, STANDARD seats, low demand", () => {
+    const when = new Date("2025-10-08T14:00:00");
+    const r = computePrice({ movie: "Flash", seatLabels: ["C5","D6"], occupiedCount: 0, totalSeats: 100, when });
+    if (!(r.perSeat >= 6 && r.perSeat <= 8)) throw new Error(JSON.stringify(r));
+  });
+
+  test("weekend, PREMIUM, medium demand", () => {
+    const when = new Date("2025-10-11T19:00:00"); // Saturday evening
+    const r = computePrice({ movie: "Batman", seatLabels: ["G3","H4","I1"], occupiedCount: 47, totalSeats: 80, when });
+    if (r.perSeat < 4 || r.perSeat > 25) throw new Error(JSON.stringify(r));
+  });
+
+  (async () => {
+    const out = document.createElement('pre');
+    document.body.appendChild(out);
+    let pass = 0;
+    for (const t of tests) {
+      try { await t.fn(); pass++; out.textContent += `✅ ${t.name}\n`; }
+      catch (e) { out.textContent += `❌ ${t.name} — ${e.message}\n`; }
+    }
+    out.textContent += `\n${pass}/${tests.length} passed`;
+  })();
+</script>
