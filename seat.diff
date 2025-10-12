@@ -1,0 +1,287 @@
+--- index.js.old	2025-10-11 22:38:27
++++ index.js	2025-10-11 22:33:32
+@@ -31,13 +31,15 @@
+ 
+     // keep current seat total consistent with new price
+     p = Number(sel.dataset.price || 7);
+-    totalPEl.textContent = '$' + (p * arraySeats.length);
++    if (totalPEl) {
++        totalPEl.textContent = '$' + (p * arraySeats.length);
++    }
+ 
+     // persist movie selection
+     try {
+         localStorage.setItem('selectedMovieIndex', String(dropDown.selectedIndex));
+     } catch (_) { }
+-    recalcDynamicPricing();
++    updateTotalsAndSummary();
+ });
+ 
+ //default case
+@@ -80,6 +82,51 @@
+ const showtimeInput = document.querySelector("#showtime");
+ const hasPricing = !!(window.pricing && typeof window.pricing.computePrice === 'function');
+ 
++// --- De-dupe & sync helpers (central source of truth = DOM .seat.selected) ---
++function syncArrayFromDOM(){
++    const labels = [...document.querySelectorAll('#seatCont .seat.selected')]
++        .map(s => s.dataset.label).filter(Boolean);
++    arraySeats = Array.from(new Set(labels));
++    try { localStorage.setItem('selectedSeats', JSON.stringify(arraySeats)); } catch(_) {}
++    if (numSeats) numSeats.textContent = arraySeats.length;
++    try { window.arraySeats = arraySeats.slice(); } catch(_) {}
++}
++function renderSelectedChips(){
++    if (!holder) return;
++    holder.innerHTML = '';
++    if (!arraySeats.length) {
++        const span = document.createElement('span');
++        span.className = 'noSelected';
++        span.textContent = 'No Seat Selected';
++        holder.appendChild(span);
++        return;
++    }
++    const frag = document.createDocumentFragment();
++    arraySeats.forEach(lbl => {
++        const chip = document.createElement('div');
++        chip.className = 'selectedSeat';
++        chip.dataset.seatLabel = lbl;
++        chip.textContent = lbl;
++        frag.appendChild(chip);
++    });
++    holder.appendChild(frag);
++}
++function updateTotalsAndSummary(){
++    let handled = false;
++    try {
++        if (typeof recalcDynamicPricing === 'function') {
++            recalcDynamicPricing();
++            handled = true;
++        }
++    } catch(_) { handled = false; }
++    if (!handled && totalP) {
++        const base = Number.isFinite(Number(p)) ? Number(p) : 0;
++        totalP.textContent = '$' + (base * arraySeats.length).toFixed(2);
++    }
++    try { if (typeof syncSummaryUI === 'function') syncSummaryUI(); } catch(_) {}
++    try { if (typeof window.__clarifyLivePricingUpdate === 'function') window.__clarifyLivePricingUpdate(); } catch(_) {}
++}
++
+ // ---- Summary sync (reads existing DOM; no renames required)
+ function fmtCurrency(n){
+     const x = Number(n ?? 0);
+@@ -278,34 +325,18 @@
+     try {
+         const stored = JSON.parse(localStorage.getItem('selectedSeats') || '[]');
+         if (Array.isArray(stored) && stored.length) {
+-            const fragment = document.createDocumentFragment();
+             seat.forEach(s => {
+                 const lbl = s.dataset.label;
+                 if (lbl && stored.includes(lbl) && !s.classList.contains('occupied')) {
+                     s.classList.add('selected');
+-                    const el = document.createElement('div');
+-                    el.className = 'selectedSeat';
+-                    el.dataset.seatLabel = lbl;
+-                    el.textContent = lbl;
+-                    fragment.appendChild(el);
+                 }
+             });
+-            if (fragment.childNodes.length) {
+-                holder.appendChild(fragment);
+-                const noSel = holder.querySelector('.noSelected');
+-                if (noSel) noSel.remove();
+-            }
+-            arraySeats = stored.filter(Boolean).filter(lbl => {
+-                // drop any that became occupied since last time
+-                const el = document.querySelector(`#seatCont .seat[data-label="${lbl}"]`);
+-                return el && !el.classList.contains('occupied');
+-            });
+-            numSeats.textContent = arraySeats.length;
+-            totalP.textContent = '$' + (p * arraySeats.length);
+         }
+     } catch (_) { }
++    syncArrayFromDOM();
++    renderSelectedChips();
++    updateTotalsAndSummary();
+     refreshSeatA11y();
+-    recalcDynamicPricing();
+ })();
+ 
+ // Proceed button enable/disable based on selection
+@@ -357,52 +388,14 @@
+ 
+ for (let i = 0; i < seat.length; i++) {
+     seat[i].addEventListener("click", (event) => {
+-        if (!(event.target.classList.contains("selected"))) {
+-            if (!(event.target.classList.contains("occupied"))) {
+-                const label = event.target.dataset.label || "SEAT";
+-                const seatToAdd = document.createElement("div");
+-                seatToAdd.textContent = label;
+-                seatToAdd.className = "selectedSeat";
+-                seatToAdd.dataset.seatLabel = label;
+-
+-                event.target.classList.add("selected");
+-                arraySeats.push(label);
+-                numSeats.textContent = arraySeats.length;
+-                totalP.textContent = '$' + (p * arraySeats.length);
+-
+-                holder.append(seatToAdd);
+-                const noSel = holder.querySelector('.noSelected');
+-                if (noSel) noSel.remove();
+-
+-                // persist selection
+-                try { localStorage.setItem('selectedSeats', JSON.stringify(arraySeats)); } catch (_) { }
+-                updateProceedState();
+-                recalcDynamicPricing();
+-            }
+-        } else {
+-            event.target.classList.remove('selected');
+-            const lbl = event.target.dataset.label;
+-            arraySeats = arraySeats.filter(l => l !== lbl);
+-            numSeats.textContent = arraySeats.length;
+-
+-            const label = event.target.dataset.label;
+-            if (label) {
+-                const toRemove = holder.querySelector(`.selectedSeat[data-seat-label="${label}"]`);
+-                if (toRemove) toRemove.remove();
+-            }
+-            if (arraySeats.length == 0) {
+-                const msg = document.createElement('span');
+-                msg.className = 'noSelected';
+-                msg.textContent = 'No Seat Selected';
+-                holder.append(msg);
+-            }
+-            totalP.textContent = '$' + (p * arraySeats.length);
+-
+-            // persist selection
+-            try { localStorage.setItem('selectedSeats', JSON.stringify(arraySeats)); } catch (_) { }
+-            updateProceedState();
+-            recalcDynamicPricing();
+-        }
++        const el = event.currentTarget || event.target.closest('.seat');
++        if (!el || el.classList.contains('occupied')) return;
++        el.classList.toggle('selected');
++        syncArrayFromDOM();
++        renderSelectedChips();
++        updateTotalsAndSummary();
++        updateProceedState();
++        refreshSeatA11y();
+     });
+ 
+     // Keyboard support: Enter/Space toggles seat like click
+@@ -451,12 +444,11 @@
+     });
+     refreshSeatA11y();
+ 
+-    // reset totals and UI
+-    arraySeats.length = 0;
+-    numSeats.textContent = 0;
++    // reset totals and UI via helpers
++    syncArrayFromDOM();
++    renderSelectedChips();
+     const price = document.querySelector("#totalPrice");
+-    price.textContent = "$0";
+-    holder.innerHTML = '<span class="noSelected">No Seat Selected</span>'
++    if (price) price.textContent = "$0";
+ 
+     // clear persisted selection since it's now booked
+     try { localStorage.setItem('selectedSeats', '[]'); } catch (_) { }
+@@ -467,7 +459,7 @@
+         localStorage.setItem('occupiedSeats', JSON.stringify(next));
+     } catch (_) { }
+     updateProceedState();
+-    recalcDynamicPricing();
++    updateTotalsAndSummary();
+ 
+     // Build and show success modal (uses existing CSS)
+     const overlay = document.createElement('div');
+@@ -524,20 +516,18 @@
+     const selSeatsAll = document.querySelectorAll("#seatCont .seat.selected");
+     selSeatsAll.forEach(s => s.classList.remove("selected"));
+ 
+-    arraySeats.length = 0;
+-    numSeats.textContent = 0;
++    syncArrayFromDOM();
++    renderSelectedChips();
+ 
+     const price = document.querySelector("#totalPrice");
+-    price.textContent = "$0";
+-
+-    holder.innerHTML = '<span class="noSelected">No Seat Selected</span>';
++    if (price) price.textContent = "$0";
+     // (leaving movie selection as-is on cancel, your default block already set initial)
+ 
+     // clear persisted selection on cancel
+     try { localStorage.setItem('selectedSeats', '[]'); } catch (_) { }
+     updateProceedState();
+     refreshSeatA11y();
+-    recalcDynamicPricing();
++    updateTotalsAndSummary();
+ });
+ 
+ // Click on a selected seat chip to deselect that seat
+@@ -546,33 +536,31 @@
+     if (!chip) return;
+     const label = chip.dataset.seatLabel;
+     const seatEl = document.querySelector(`#seatCont .seat[data-label="${label}"]`);
+-    if (seatEl && seatEl.classList.contains('selected')) {
+-        seatEl.click();
++    if (seatEl) {
++        seatEl.classList.remove('selected');
+     }
++    syncArrayFromDOM();
++    renderSelectedChips();
++    updateTotalsAndSummary();
++    updateProceedState();
++    refreshSeatA11y();
+ });
+ 
+ // Delegated seat click fallback (idempotent)
+ (function ensureSeatClicksWork(){
++  if (window.__USE_DELEGATED_SEAT_HANDLER !== true) return;
+   const cont = document.querySelector('#seatCont');
+   if (!cont) return;
+   cont.addEventListener('click', (e) => {
+     const el = e.target.closest('.seat');
+     if (!el || el.classList.contains('occupied')) return;
+     el.classList.toggle('selected');
+-    // rebuild selection from DOM (avoids dupes)
+-    const labels = [...document.querySelectorAll('#seatCont .seat.selected')]
+-      .map(s => s.dataset.label).filter(Boolean);
+-    try { window.arraySeats = labels; } catch(_) {}
+-    // minimal total fallback if your dynamic engine isn’t present
+-    try {
+-      if (typeof recalcDynamicPricing === 'function') recalcDynamicPricing();
+-      else {
+-        const price = parseFloat((document.querySelector('#moviePrice')?.textContent||'0').replace(/[^0-9.]/g,'')) || (typeof p==='number'?p:0);
+-        const tEl = document.querySelector('#totalPrice');
+-        if (tEl) tEl.textContent = '$' + (price * labels.length).toFixed(2);
+-      }
+-    } catch(_) {}
+-    try { if (typeof syncSummaryUI === 'function') syncSummaryUI(); } catch(_) {}
++    syncArrayFromDOM();
++    renderSelectedChips();
++    updateTotalsAndSummary();
++    updateProceedState();
++    refreshSeatA11y();
++    try { window.arraySeats = arraySeats.slice(); } catch(_) {}
+   }, { capture:false });
+ })();
+ 
+@@ -681,6 +669,7 @@
+     const count = document.querySelectorAll('#seatCont .seat.selected').length;
+     if (count === 0) holder.textContent = 'Live pricing (now)';
+   };
++  window.__clarifyLivePricingUpdate = update;
+   if (document.readyState === 'loading') {
+     document.addEventListener('DOMContentLoaded', update);
+   } else {
+@@ -692,4 +681,8 @@
+       new MutationObserver(update).observe(tEl, { childList:true, characterData:true, subtree:true });
+     }
+   } catch (_) {}
++  try {
++    const seatContainer = document.getElementById('seatCont');
++    if (seatContainer) seatContainer.addEventListener('click', () => setTimeout(update, 0));
++  } catch (_) {}
+ })();
