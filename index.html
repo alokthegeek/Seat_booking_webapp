@@ -28,100 +28,19 @@
                                 <div class="seat legend occupied"></div>
                                 <small>Occupied</small>
                             </li>
+                            <li>
+                                <div class="seat legend recliner"></div>
+                                <small>Recliner</small>
+                            </li>
                         </ul>
                     </div>
-                    <!-- seat Container -->
+                    <!-- seat Container (rebuilt by JS) -->
                     <div class="mainSeatCont">
                         <div class="screen">
                             <small>SCREEN</small>
                         </div>
-                        <div class="seatCont" id="seatCont">
-                            <div class="seatRowCont1 seatRowCont">
-                                <div class="row">
-                                    <div class="seat"></div>
-                                    <div class="seat occupied"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="seat"></div>
-                                    <div class="seat occupied"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                </div>
-                            </div>
-                            <div class="seatRowCont2 seatRowCont">
-                                <div class="row">
-                                    <div class="seat"></div>
-                                    <div class="seat occupied"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="seat"></div>
-                                    <div class="seat occupied"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="seat"></div>
-                                    <div class="seat occupied"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="seat"></div>
-                                    <div class="seat occupied"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                </div>
-                            </div>
-                            <div class="seatRowCont3 seatRowCont">
-                                <div class="row">
-                                    <div class="seat"></div>
-                                    <div class="seat occupied"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                </div>
-                                <div class="row">
-                                    <div class="seat"></div>
-                                    <div class="seat occupied"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                    <div class="seat"></div>
-                                </div>
-                            </div>
+                        <div class="seatCont" id="seatCont" role="grid" aria-label="Auditorium" data-rows="8"
+                            data-cols="8">
                         </div>
                     </div>
                 </div>
@@ -138,6 +57,26 @@
                                     <p>Select Your Movie</p>
                                     <select id="selectMovie"></select>
                                 </label>
+                                <label for="showtime" class="sr-only">Showtime</label>
+                                <input id="showtime" hidden aria-hidden="true" disabled type="datetime-local"
+                                    aria-label="Showtime" />
+
+                                <section id="checkoutSummary" class="summary-card" aria-label="Order summary">
+                                    <div class="summary-line">
+                                        <span id="sumLabelTickets">Tickets</span>
+                                        <strong id="sumTickets">0</strong>
+                                    </div>
+                                    <div class="summary-line">
+                                        <span>Price / ticket</span>
+                                        <strong id="sumPerSeat">$0.00</strong>
+                                    </div>
+                                    <div class="summary-divider" role="separator"></div>
+                                    <div class="summary-total">
+                                        <span>Total</span>
+                                        <strong id="sumTotal">$0.00</strong>
+                                    </div>
+                                    <div id="priceBreakdown" class="summary-sub" aria-live="polite"></div>
+                                </section>
                             </div>
                             <div class="themeToggle">
                                 <label>
@@ -193,7 +132,11 @@
         </div>
     </section>
 
-    <script src="index.js"></script>
+    <script type="module" src="naming-boot.js"></script>
+    <!-- Optional bridge: load dynamic pricing globals for legacy scripts -->
+    <script type="module" src="pricing-boot.js"></script>
+    <!-- End optional pricing bridge -->
+    <script src="index.js" defer></script>
 </body>
 
 </html>
